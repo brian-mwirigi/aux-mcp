@@ -1,0 +1,34 @@
+﻿{
+  "name": "auxc-mcp",
+  "version": "0.1.0",
+  "description": "Spotify Web API MCP server with full-coverage tools plus vibe, roast and compatibility hooks.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "auxc-mcp": "dist/server.js",
+    "auxc-mcp-login": "dist/login.js"
+  },
+  "main": "dist/server.js",
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "login": "tsx src/login.ts",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "engines": { "node": ">=20" },
+  "keywords": ["spotify", "mcp", "model-context-protocol", "music", "claude", "cursor", "cline"],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "open": "^10.1.0",
+    "pkce-challenge": "^4.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
