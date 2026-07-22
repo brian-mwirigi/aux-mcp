@@ -5,8 +5,10 @@ import { registerPlaylistTools } from "./playlists.js";
 import { registerLibraryTools } from "./library.js";
 import { registerPersonalizationTools } from "./personalization.js";
 import { registerHookTools } from "./hooks.js";
+import { registerMetaTools } from "./meta.js";
 
 export function registerAllTools(server: McpServer): void {
+  registerMetaTools(server);
   registerSearchBrowseTools(server);
   registerPlaybackTools(server);
   registerPlaylistTools(server);

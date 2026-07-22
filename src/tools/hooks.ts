@@ -607,71 +607,115 @@ function computeTasteStats(tracks: any[], features: AudioFeatures[]) {
 
 function buildRoast(stats: ReturnType<typeof computeTasteStats>): string {
   const lines: string[] = [];
-  lines.push("Alright, I listened. Against my will.");
+  const grade = roastGrade(stats);
+  lines.push(`AUX ROAST · grade ${grade}`);
+  lines.push("I listened. Against medical advice.");
 
   if (stats.avg_popularity > 75) {
     lines.push(
-      `Your average track popularity is ${stats.avg_popularity}. Congrats — your algorithm has better taste than you do.`
+      `Avg popularity ${stats.avg_popularity}. Your Discover Weekly has more personality than you — the algorithm is ghostwriting your identity.`
     );
   } else if (stats.avg_popularity < 35) {
     lines.push(
-      `Average popularity ${stats.avg_popularity}. Either you're a visionary or you're allergic to songs other humans have heard.`
+      `Avg popularity ${stats.avg_popularity}. Either you're curating the future or you're collecting songs like conspiracy PDFs.`
     );
   } else {
     lines.push(
-      `Popularity sitting at a lukewarm ${stats.avg_popularity}. Bold strategy: be aggressively average.`
+      `Popularity ${stats.avg_popularity}: the musical equivalent of a gray hoodie. Technically clothing. Spiritually nothing.`
     );
   }
 
   if (stats.avg_valence < 0.35) {
     lines.push(
-      `Valence ${stats.avg_valence} — this playlist could be a seasonal depression PSA.`
+      `Valence ${stats.avg_valence}. This isn't a playlist — it's a weather advisory.`
     );
   } else if (stats.avg_valence > 0.7) {
     lines.push(
-      `Valence ${stats.avg_valence}. Who hurt you into becoming this relentlessly upbeat?`
+      `Valence ${stats.avg_valence}. Relentlessly OK. Did a corporate retreat write this?`
+    );
+  } else {
+    lines.push(
+      `Valence ${stats.avg_valence}: emotionally committed to the middle seat.`
     );
   }
 
   if (stats.avg_energy < 0.35) {
     lines.push(
-      `Energy ${stats.avg_energy}. I've heard elevator music with more ambition.`
+      `Energy ${stats.avg_energy}. I've heard hold music with a stronger character arc.`
     );
   } else if (stats.avg_energy > 0.75) {
     lines.push(
-      `Energy ${stats.avg_energy}. Do you ever sit down, or is your resting heart rate just a Kick/snare?`
+      `Energy ${stats.avg_energy}. Your resting state is a pre-drop. Touch grass. Or at least a ballad.`
     );
   }
 
   if (stats.avg_tempo < 90) {
-    lines.push(`Average tempo ${stats.avg_tempo} BPM. A nap set to music.`);
+    lines.push(`${stats.avg_tempo} BPM — a guided meditation that forgot the guide.`);
   } else if (stats.avg_tempo > 140) {
     lines.push(
-      `${stats.avg_tempo} BPM average. Your playlist thinks it's late for a flight.`
+      `${stats.avg_tempo} BPM. Your playlist is late for something that doesn't exist.`
+    );
+  } else {
+    lines.push(`${stats.avg_tempo} BPM: the speed of someone who jogs for the selfie.`);
+  }
+
+  if (stats.avg_danceability > 0.7) {
+    lines.push(
+      `Danceability ${stats.avg_danceability}. Main-character wedding reception energy. The DJ fears you.`
+    );
+  } else if (stats.avg_danceability < 0.35) {
+    lines.push(
+      `Danceability ${stats.avg_danceability}. Bodies were not consulted in the making of this playlist.`
     );
   }
 
   if (stats.explicit_ratio > 0.5) {
     lines.push(
-      `${Math.round(stats.explicit_ratio * 100)}% explicit. Charming. Definitely put this on at family dinner.`
+      `${Math.round(stats.explicit_ratio * 100)}% explicit. Bold choice for the shared Uber.`
     );
   }
 
   if (stats.top_artists[0]) {
     const top = stats.top_artists[0];
+    const others = stats.top_artists
+      .slice(1, 3)
+      .map((a) => a.name)
+      .join(", ");
     lines.push(
-      `Most appearances: ${top.name} (×${top.count}). We get it. They're your personality now.`
+      `Most played: ${top.name} (×${top.count}).${
+        others ? ` Honorable mentions in your cult: ${others}.` : ""
+      } We get it. They're your whole personality now.`
     );
   }
 
   if (stats.avg_acousticness > 0.6) {
     lines.push(
-      `Acousticness ${stats.avg_acousticness}. Very "I own a tote bag and opinions about coffee."`
+      `Acousticness ${stats.avg_acousticness}. Tote bag. Oat milk. Unsolicited takes on "production."`
+    );
+  } else if (stats.avg_acousticness < 0.15 && stats.avg_energy > 0.6) {
+    lines.push(
+      `Acousticness ${stats.avg_acousticness}. If it isn't compressed to a pancake, you don't trust it.`
     );
   }
 
-  lines.push("Anyway — keep streaming. The rest of us need the contrast.");
+  lines.push(
+    "Verdict: keep streaming. Someone has to make the rest of us look intentional."
+  );
+  lines.push("— AUX");
   return lines.join("\n");
+}
+
+function roastGrade(stats: ReturnType<typeof computeTasteStats>): string {
+  // Fake "taste risk" score for screenshot bait — not scientific, deeply judgmental.
+  const weird =
+    (1 - stats.avg_popularity / 100) * 40 +
+    Math.abs(stats.avg_valence - 0.5) * 30 +
+    Math.abs(stats.avg_energy - 0.5) * 20 +
+    stats.explicit_ratio * 10;
+  if (weird > 55) return "S (chaotic)";
+  if (weird > 40) return "A (concerning)";
+  if (weird > 25) return "B (safe)";
+  return "C (NPC)";
 }
 
 function compatibilityVerdict(score: number): string {

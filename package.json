@@ -1,25 +1,50 @@
 ﻿{
-  "name": "auxc-mcp",
-  "version": "0.1.0",
-  "description": "Spotify Web API MCP server with full-coverage tools plus vibe, roast and compatibility hooks.",
+  "name": "aux-mcp",
+  "version": "0.2.0",
+  "description": "AUX — Spotify for your AI. Full-coverage MCP + vibe, roast, compatibility, and taste-memory hooks.",
   "license": "MIT",
   "type": "module",
   "bin": {
-    "auxc-mcp": "dist/server.js",
-    "auxc-mcp-login": "dist/login.js"
+    "aux-mcp": "dist/server.js"
   },
   "main": "dist/server.js",
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    ".env.example",
+    "examples"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "login": "tsx src/login.ts",
+    "status": "tsx src/server.ts status",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build"
   },
-  "engines": { "node": ">=20" },
-  "keywords": ["spotify", "mcp", "model-context-protocol", "music", "claude", "cursor", "cline"],
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brian-mwirigi/aux-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/brian-mwirigi/aux-mcp/issues"
+  },
+  "homepage": "https://github.com/brian-mwirigi/aux-mcp#readme",
+  "keywords": [
+    "spotify",
+    "mcp",
+    "model-context-protocol",
+    "music",
+    "claude",
+    "cursor",
+    "cline",
+    "aux"
+  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "open": "^10.1.0",

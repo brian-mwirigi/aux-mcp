@@ -1,6 +1,7 @@
 import { homedir } from "node:os";
 import { join, dirname } from "node:path";
 import { mkdirSync, existsSync, readFileSync, writeFileSync, chmodSync } from "node:fs";
+import { loadDotEnv } from "./env.js";
 
 export interface SpotifyConfig {
   clientId: string;
@@ -42,13 +43,33 @@ export const SCOPES = [
 const DEFAULT_PORT = 7654;
 const DEFAULT_REDIRECT = `http://localhost:7654/callback`;
 
+let dotenvLoaded = false;
+
+function ensureDotEnv(): void {
+  if (dotenvLoaded) return;
+  loadDotEnv();
+  dotenvLoaded = true;
+}
+
+function resolveTokenDir(): string {
+  const fromEnv =
+    process.env.AUX_MCP_TOKEN_DIR ?? process.env.AUXC_MCP_TOKEN_DIR;
+  if (fromEnv) return fromEnv;
+
+  const next = join(homedir(), ".aux-mcp");
+  const legacy = join(homedir(), ".auxc-mcp");
+  // Keep using legacy dir if the user already logged in there.
+  if (!existsSync(next) && existsSync(legacy)) return legacy;
+  return next;
+}
+
 export function loadConfig(): SpotifyConfig {
+  ensureDotEnv();
   const clientId = requireEnv("SPOTIFY_CLIENT_ID");
   const clientSecret = requireEnv("SPOTIFY_CLIENT_SECRET");
   const redirectUri = process.env.SPOTIFY_REDIRECT_URI ?? DEFAULT_REDIRECT;
   const port = parseInt(process.env.SPOTIFY_PORT ?? String(DEFAULT_PORT), 10);
-  const tokenDir =
-    process.env.AUXC_MCP_TOKEN_DIR ?? join(homedir(), ".auxc-mcp");
+  const tokenDir = resolveTokenDir();
   return {
     clientId,
     clientSecret,
@@ -65,8 +86,11 @@ function requireEnv(name: string): string {
   const value = process.env[name];
   if (!value) {
     throw new Error(
-      `Missing required environment variable ${name}. Set it in your MCP client config or shell.\n` +
-        `Spotify dashboard: https://developer.spotify.com/dashboard`
+      `Missing ${name}.\n` +
+        `  • Put it in your MCP config env, or\n` +
+        `  • Create a .env file (see .env.example), or\n` +
+        `  • export it in your shell\n` +
+        `Dashboard: https://developer.spotify.com/dashboard`
     );
   }
   return value;
@@ -106,17 +130,15 @@ export function writeStoredToken(path: string, token: StoredToken): void {
   }
   writeFileSync(path, JSON.stringify(token, null, 2), { encoding: "utf8" });
   try {
-    // Best-effort tighten perms; on Windows this is mostly a no-op.
     chmodSync(path, 0o600);
   } catch {
-    // ignore
+    // ignore — Windows often can't chmod like Unix
   }
 }
 
 export function clearStoredToken(path: string): void {
   if (existsSync(path)) {
     try {
-      // Replace with empty so we don't leave dangling secrets.
       writeFileSync(path, "{}", { encoding: "utf8" });
     } catch {
       // ignore

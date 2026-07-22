@@ -30,8 +30,13 @@ const SCORE_DELTA: Record<FeedbackAction, number> = {
 };
 
 function memoryPath(): string {
+  const fromEnv =
+    process.env.AUX_MCP_TOKEN_DIR ?? process.env.AUXC_MCP_TOKEN_DIR;
+  const next = join(homedir(), ".aux-mcp");
+  const legacy = join(homedir(), ".auxc-mcp");
   const dir =
-    process.env.AUXC_MCP_TOKEN_DIR ?? join(homedir(), ".auxc-mcp");
+    fromEnv ??
+    (existsSync(next) || !existsSync(legacy) ? next : legacy);
   return join(dir, "taste-memory.json");
 }
 

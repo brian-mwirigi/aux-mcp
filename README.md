@@ -1,58 +1,78 @@
-# auxc-mcp
+# AUX
 
-Spotify Web API MCP server for Claude, Cursor, and Cline.
+**Spotify, for your AI.**
 
-**Full-coverage toolkit** (search, browse, playback, playlists, library, personalization) plus **hooks** that other Spotify MCPs don't ship:
+An MCP server that doesn’t just wrap the Spotify API — it gives Claude / Cursor / Cline the aux cord: full playback + library control, plus hooks nobody else ships.
 
-| Hook | What it does |
-|------|----------------|
-| `set_mood` | Queue music by energy / valence / tempo — not just genre seeds |
-| `adjust_playlist_vibe` | “Make this 20% more upbeat” → reorder/prune by audio features |
-| `roast_my_playlist` | Shareable roast of a playlist or your top tracks |
-| `music_compatibility` | Taste match score between two playlists (or vs you) |
-| `record_taste_feedback` / `get_taste_memory` | Cross-session skip/repeat memory that biases vibe tools |
+```bash
+git clone https://github.com/brian-mwirigi/aux-mcp.git
+cd aux-mcp && npm i && npm run build
+cp .env.example .env   # add Client ID + Secret
+npm run login          # browser → done
+```
+
+Then paste one config block (below) and ask:
+
+> *“Set a late-night drive mood and play it.”*  
+> *“Roast my Discover Weekly.”*  
+> *“Make this playlist 20% more upbeat.”*
 
 ---
 
-## 30-second setup
+## Why AUX (not another 40-tool wrapper)
 
-### 1. Create a Spotify app
+| Everyone else | AUX |
+|---|---|
+| Seed tracks / genres | **`set_mood`** — energy · valence · tempo → real queue |
+| Add / remove tracks | **`adjust_playlist_vibe`** — reshape by audio features |
+| — | **`roast_my_playlist`** — shareable taste assassination |
+| — | **`music_compatibility`** — score you vs a friend’s playlist |
+| Amnesia each chat | **Taste memory** — skips/repeats bias future vibes |
 
-1. Open [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard)
-2. Create an app → copy **Client ID** and **Client Secret**
-3. Edit Settings → Redirect URIs → add exactly:
+Underneath: **58 tools** so the model never stalls mid-task (*“I’d add that to a playlist but… no tool”*). Infrastructure keeps it installed. Hooks get it installed.
+
+---
+
+## Setup (about 60 seconds)
+
+### 1. Spotify app
+
+1. [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) → Create app  
+2. Settings → Redirect URIs → add **exactly**:
 
 ```
 http://localhost:7654/callback
 ```
 
-### 2. Install & login
+3. Copy **Client ID** + **Client Secret**
+
+### 2. Install + login
 
 ```bash
-cd spotify   # this repo
 npm install
 npm run build
-
-# one-time user auth (browser PKCE → ~/.auxc-mcp/token.json)
-set SPOTIFY_CLIENT_ID=your_id
-set SPOTIFY_CLIENT_SECRET=your_secret
+cp .env.example .env
+# edit .env with your credentials
 npm run login
 ```
 
-On macOS/Linux use `export` instead of `set`.
+Login opens a browser (PKCE), writes tokens to `~/.aux-mcp/`, auto-refreshes forever after.
 
-Read-only search/browse works with client credentials alone. Playback, playlists, library, and hooks need the user token from `npm run login`.
+```bash
+npm run status    # sanity check
+```
 
-### 3. Add to your MCP client
+### 3. Wire your client
 
-**Cursor** — `.cursor/mcp.json` (or global MCP settings):
+**Cursor** — project `.cursor/mcp.json` or global MCP settings  
+(see also [`examples/mcp.cursor.json`](examples/mcp.cursor.json)):
 
 ```json
 {
   "mcpServers": {
-    "spotify": {
+    "aux": {
       "command": "node",
-      "args": ["C:/Users/YOU/Desktop/spotify/dist/server.js"],
+      "args": ["C:/path/to/aux-mcp/dist/server.js"],
       "env": {
         "SPOTIFY_CLIENT_ID": "your_id",
         "SPOTIFY_CLIENT_SECRET": "your_secret"
@@ -62,14 +82,15 @@ Read-only search/browse works with client credentials alone. Playback, playlists
 }
 ```
 
-**Claude Desktop** — `claude_desktop_config.json`:
+**Claude Desktop** — `claude_desktop_config.json`  
+(see [`examples/mcp.claude.json`](examples/mcp.claude.json)):
 
 ```json
 {
   "mcpServers": {
-    "spotify": {
+    "aux": {
       "command": "node",
-      "args": ["/absolute/path/to/spotify/dist/server.js"],
+      "args": ["/absolute/path/to/aux-mcp/dist/server.js"],
       "env": {
         "SPOTIFY_CLIENT_ID": "your_id",
         "SPOTIFY_CLIENT_SECRET": "your_secret"
@@ -79,7 +100,60 @@ Read-only search/browse works with client credentials alone. Playback, playlists
 }
 ```
 
-Restart the client. Ask: *“What’s playing?”* or *“Set a chill low-energy mood and play it.”*
+Restart the client. Playback needs **Premium** + Spotify open on a device (`get_devices` if play fails).
+
+---
+
+## Hooks (the reason you’re here)
+
+| Tool | Try saying |
+|------|------------|
+| `set_mood` | “Energy 0.25, valence 0.4, tempo 85 — play it” |
+| `adjust_playlist_vibe` | “Make *Gym* 20% more upbeat” |
+| `roast_my_playlist` | “Roast my top tracks this month” |
+| `music_compatibility` | “How compatible am I with this playlist?” |
+| `record_taste_feedback` | “I skipped that — remember” |
+| `get_taste_memory` | “What have you learned about my taste?” |
+
+---
+
+## Full tool map
+
+<details>
+<summary><strong>Search & browse</strong> (read-only — client credentials enough)</summary>
+
+`search_tracks` · `search_artists` · `search_albums` · `search_playlists` · `get_track` · `get_artist` · `get_artist_top_tracks` · `get_artist_albums` · `get_album` · `get_album_tracks` · `get_playlist` · `get_playlist_tracks` · `get_recommendations` · `get_audio_features` · `get_several_audio_features` · `get_new_releases` · `get_categories` · `get_featured_playlists`
+</details>
+
+<details>
+<summary><strong>Playback</strong> (user + active device)</summary>
+
+`get_current_playback` · `get_currently_playing` · `play` · `pause` · `next_track` · `previous_track` · `seek` · `set_volume` · `set_shuffle` · `set_repeat_mode` · `add_to_queue` · `get_queue` · `get_devices` · `transfer_playback`
+</details>
+
+<details>
+<summary><strong>Playlists</strong></summary>
+
+`get_my_playlists` · `create_playlist` · `add_tracks_to_playlist` · `remove_tracks_from_playlist` · `reorder_playlist_items` · `update_playlist_details`
+</details>
+
+<details>
+<summary><strong>Library</strong></summary>
+
+`get_saved_tracks` · `save_tracks` · `remove_saved_tracks` · `check_saved_tracks` · `get_saved_albums` · `save_albums`
+</details>
+
+<details>
+<summary><strong>Personalization</strong></summary>
+
+`get_top_tracks` · `get_top_artists` · `get_recently_played` · `get_followed_artists` · `follow_artist` · `unfollow_artist` · `check_following_artist` · `get_user_profile`
+</details>
+
+<details>
+<summary><strong>Hooks + meta</strong></summary>
+
+`set_mood` · `adjust_playlist_vibe` · `roast_my_playlist` · `music_compatibility` · `record_taste_feedback` · `get_taste_memory` · `auth_status`
+</details>
 
 ---
 
@@ -87,71 +161,28 @@ Restart the client. Ask: *“What’s playing?”* or *“Set a chill low-energy
 
 | Flow | How | Unlocks |
 |------|-----|---------|
-| Client credentials | Automatic from Client ID/Secret | Search, browse, catalog reads |
-| User PKCE | `npm run login` once; token auto-refreshes | Playback, playlists, library, personalization, hooks |
+| Client credentials | Automatic from ID/Secret | Search, browse, catalog |
+| User PKCE | `npm run login` once | Playback, playlists, library, personalization, hooks |
 
-Tokens live in `~/.auxc-mcp/` (`token.json`, `client-token.json`, `taste-memory.json`). Override with `AUXC_MCP_TOKEN_DIR`.
+Tokens: `~/.aux-mcp/` (`token.json`, `client-token.json`, `taste-memory.json`). Override with `AUX_MCP_TOKEN_DIR`.
 
-Playback tools need **Spotify Premium** and an **active device** (`get_devices` → open the Spotify app if the list is empty).
+IDs accept bare IDs, `spotify:` URIs, or `open.spotify.com` URLs.
 
----
-
-## Tool map
-
-### Search & browse (read-only)
-
-`search_tracks` · `search_artists` · `search_albums` · `search_playlists` · `get_track` · `get_artist` · `get_artist_top_tracks` · `get_artist_albums` · `get_album` · `get_album_tracks` · `get_playlist` · `get_playlist_tracks` · `get_recommendations` · `get_audio_features` · `get_several_audio_features` · `get_new_releases` · `get_categories` · `get_featured_playlists`
-
-### Playback (user + device)
-
-`get_current_playback` · `get_currently_playing` · `play` · `pause` · `next_track` · `previous_track` · `seek` · `set_volume` · `set_shuffle` · `set_repeat_mode` · `add_to_queue` · `get_queue` · `get_devices` · `transfer_playback`
-
-### Playlists (user)
-
-`get_my_playlists` · `create_playlist` · `add_tracks_to_playlist` · `remove_tracks_from_playlist` · `reorder_playlist_items` · `update_playlist_details`
-
-### Library (user)
-
-`get_saved_tracks` · `save_tracks` · `remove_saved_tracks` · `check_saved_tracks` · `get_saved_albums` · `save_albums`
-
-### Personalization (user)
-
-`get_top_tracks` · `get_top_artists` · `get_recently_played` · `get_followed_artists` · `follow_artist` · `unfollow_artist` · `check_following_artist` · `get_user_profile`
-
-### Hooks
-
-`set_mood` · `adjust_playlist_vibe` · `roast_my_playlist` · `music_compatibility` · `record_taste_feedback` · `get_taste_memory`
+> Spotify has restricted `/recommendations` (and sometimes audio-features) for newer apps. If those 403, use **`set_mood`** — it builds from your library / top tracks instead.
 
 ---
 
-## Example prompts
+## CLI
 
-- “Search for tracks by Rosalía and play the first one.”
-- “Set mood energy 0.2, valence 0.4, tempo 85 and play it.”
-- “Roast my Discover Weekly.”
-- “Compare playlist X with my taste — music_compatibility.”
-- “Make playlist Y 20% more upbeat.”
-- “I skipped that track — remember it.”
-
----
-
-## Scripts
-
-| Command | Purpose |
-|---------|---------|
-| `npm run build` | Compile TypeScript → `dist/` |
-| `npm run login` | Browser OAuth (PKCE) |
-| `npm start` | Run MCP server on stdio |
-| `npm run typecheck` | `tsc --noEmit` |
+```bash
+npx aux-mcp          # MCP stdio server
+npx aux-mcp login    # browser OAuth
+npx aux-mcp status   # creds + login check
+npx aux-mcp help
+```
 
 ---
-
-## Notes
-
-- IDs accept bare Spotify IDs, `spotify:` URIs, or `open.spotify.com` URLs.
-- Spotify has restricted `/recommendations` and some audio-feature access for newer apps. If those fail, use `set_mood` (library/top-track based) instead.
-- This server speaks MCP over **stdio** only.
 
 ## License
 
-MIT
+MIT · [brian-mwirigi/aux-mcp](https://github.com/brian-mwirigi/aux-mcp)
