@@ -1,7 +1,7 @@
 ﻿{
   "name": "aux-mcp",
-  "version": "0.3.0",
-  "description": "AUX — Spotify for your AI. Natural-language vibe DJ, roast cards, playlist battles, party mode. Full Spotify MCP coverage.",
+  "version": "0.4.0",
+  "description": "AUX — Spotify for your AI. Vibe DJ, roast cards, battles, party rooms, auto-DJ. Full Spotify MCP.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -10,6 +10,8 @@
   "main": "dist/server.js",
   "files": [
     "dist",
+    "web",
+    "docs",
     "README.md",
     "LICENSE",
     ".env.example",
@@ -20,6 +22,11 @@
     "dev": "tsc --watch",
     "login": "tsx src/login.ts",
     "status": "tsx src/server.ts status",
+    "autodj": "tsx src/server.ts autodj",
+    "party-host": "tsx src/server.ts party-host",
+    "web": "tsx src/server.ts web",
+    "demo": "tsx src/server.ts demo",
+    "smoke": "npm run build && node scripts/smoke.mjs",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build"
@@ -43,7 +50,8 @@
     "claude",
     "cursor",
     "cline",
-    "aux"
+    "aux",
+    "dj"
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",

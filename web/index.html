@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AUX · Roast</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="noise"></div>
+  <main>
+    <p class="brand">AUX</p>
+    <h1>Roast a playlist.</h1>
+    <p class="sub">Paste a Spotify playlist link. Get a card worth posting. No install.</p>
+
+    <form id="form">
+      <label>
+        Playlist URL
+        <input id="playlist" type="url" placeholder="https://open.spotify.com/playlist/…" required />
+      </label>
+      <label>
+        Spotify Client ID
+        <input id="clientId" type="text" placeholder="from developer.spotify.com/dashboard" required />
+      </label>
+      <button type="submit" id="go">Analyze & roast</button>
+    </form>
+
+    <p id="status" class="status" hidden></p>
+    <pre id="card" class="card" hidden></pre>
+    <button id="copy" class="ghost" hidden>Copy card</button>
+  </main>
+  <footer>
+    <a href="https://github.com/brian-mwirigi/aux-mcp">aux-mcp</a>
+    · Spotify for your AI
+  </footer>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

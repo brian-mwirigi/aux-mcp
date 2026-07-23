@@ -116,13 +116,17 @@ export async function runMoodQueue(opts: {
   search_queries?: string[];
   /** Pull from catalog (default true). false = mostly user library. */
   explore?: boolean;
+  /** Avoid your top tracks + high-popularity hits. */
+  anti_algorithm?: boolean;
 }) {
   const n = opts.limit ?? 15;
+  const anti = Boolean(opts.anti_algorithm);
   const { tracks: candidates, sources } = await discoverCandidateTracks({
     text: opts.text ?? opts.label,
     search_queries: opts.search_queries,
     explore: opts.explore !== false,
     limit: Math.max(n * 8, 100),
+    anti_algorithm: anti,
   });
   if (!candidates.length) {
     throw new Error(
@@ -137,8 +141,15 @@ export async function runMoodQueue(opts: {
   for (const id of await currentlyPlayingAndRecentIds()) {
     avoid.add(id);
   }
+  if (anti) {
+    for (const id of await userTopTrackIds()) avoid.add(id);
+  }
 
-  const filtered = candidates.filter((t) => !avoid.has(t.id));
+  let filtered = candidates.filter((t) => !avoid.has(t.id));
+  if (anti) {
+    const underground = filtered.filter((t) => (t.popularity ?? 50) < 55);
+    if (underground.length >= Math.max(5, n)) filtered = underground;
+  }
   const pool = filtered.length >= 3 ? filtered : candidates;
   const features = await fetchAudioFeatures(pool.map((t) => t.id));
   const byId = new Map(features.map((f) => [f.id, f]));
@@ -212,9 +223,29 @@ export async function runMoodQueue(opts: {
       tempo: p.features?.tempo,
       vibe_distance: Number(p.distance.toFixed(3)),
     })),
+    anti_algorithm: anti,
     avoided_from_memory: avoid.size,
     preferred_boosted: picked.filter((p) => prefer.has(p.track.id)).length,
   };
+}
+
+async function userTopTrackIds(): Promise<string[]> {
+  const ids: string[] = [];
+  try {
+    for (const range of ["short_term", "medium_term"] as const) {
+      const top = await spotify.get<any>(
+        "/me/top/tracks",
+        { time_range: range, limit: 50 },
+        "user"
+      );
+      for (const t of top.items ?? []) {
+        if (t?.id) ids.push(t.id);
+      }
+    }
+  } catch {
+    /* */
+  }
+  return ids;
 }
 
 /** Prefer closer tracks, but don't deterministically always pick the same order. */

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="420" viewBox="0 0 920 420" role="img" aria-label="AUX demo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a0a"/>
+      <stop offset="100%" stop-color="#111"/>
+    </linearGradient>
+    <style>
+      .t { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #d6d6d6; font-size: 14px; }
+      .g { fill: #1ed760; }
+      .dim { fill: #777; }
+      .title { font-family: Georgia, serif; font-size: 28px; fill: #f5f5f5; }
+      .fade { opacity: 0; animation: in 0.6s ease forwards; }
+      .d1 { animation-delay: 0.2s; }
+      .d2 { animation-delay: 0.9s; }
+      .d3 { animation-delay: 1.6s; }
+      .d4 { animation-delay: 2.3s; }
+      @keyframes in { to { opacity: 1; } }
+    </style>
+  </defs>
+  <rect width="920" height="420" fill="url(#bg)" rx="18"/>
+  <text x="40" y="48" class="t g" style="letter-spacing:4px">AUX</text>
+  <text x="40" y="95" class="title fade d1">you: rainy 2am drive</text>
+  <text x="40" y="140" class="t dim fade d2">aux invents searches · scores the catalog · skips repeats</text>
+  <g class="fade d3">
+    <rect x="40" y="170" width="520" height="200" rx="12" fill="#0e0e0e" stroke="#222"/>
+    <text x="60" y="200" class="t g">AUX · VIBE</text>
+    <text x="60" y="230" class="t">RAINY 2AM DRIVE</text>
+    <text x="60" y="258" class="t dim">2am neo-soul · night drive alt r&amp;b</text>
+    <text x="60" y="295" class="t">energy  ˆˆˆˆˆ‘‘‘‘‘‘‘‘‘‘‘ 0.30</text>
+    <text x="60" y="318" class="t">valence ˆˆˆˆˆ‘‘‘‘‘‘‘‘‘‘‘ 0.35</text>
+    <text x="60" y="341" class="t">tempo   ˆˆˆˆˆ‘‘‘‘‘‘‘‘‘‘‘ 92bpm</text>
+  </g>
+  <text x="600" y="240" class="t fade d4">’ now playing</text>
+  <text x="600" y="270" class="t g fade d4">Rainy Window</text>
+  <text x="600" y="300" class="t dim fade d4">pass the aux</text>
+</svg>

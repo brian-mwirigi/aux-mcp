@@ -163,6 +163,34 @@ export function partyCard(opts: {
   ].join("\n");
 }
 
+export function weeklyCard(opts: {
+  week_label: string;
+  archetype: string;
+  top_tracks: string[];
+  roast_line: string;
+  stats: TasteStats;
+}): string {
+  const tops = opts.top_tracks
+    .slice(0, 5)
+    .map((t, i) => `║${pad(` ${i + 1}. ${t}`)}║`)
+    .join("\n");
+  return [
+    `╔${line("═")}╗`,
+    `║${pad(" AUX · WEEKLY REPORT")}║`,
+    `║${pad(` ${opts.week_label}`)}║`,
+    `╠${line("═")}╣`,
+    `║${pad(` archetype · ${opts.archetype}`)}║`,
+    `║${pad(` energy ${bar(opts.stats.avg_energy)}`)}║`,
+    `║${pad(` valence ${bar(opts.stats.avg_valence)}`)}║`,
+    `╠${line("─")}╣`,
+    tops || `║${pad(" (no top tracks yet)")}║`,
+    `╠${line("─")}╣`,
+    `║${pad(` ${opts.roast_line}`)}║`,
+    `╚${line("═")}╝`,
+    `  share your week. or bury it.`,
+  ].join("\n");
+}
+
 export function archetypeFromStats(stats: TasteStats): string {
   const { avg_energy: e, avg_valence: v, avg_danceability: d, avg_popularity: p } =
     stats;

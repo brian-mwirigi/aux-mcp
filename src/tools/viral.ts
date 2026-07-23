@@ -74,6 +74,12 @@ export function registerViralTools(server: McpServer) {
           .boolean()
           .optional()
           .describe("Search Spotify catalog (default true). false = mostly user library"),
+        anti_algorithm: z
+          .boolean()
+          .optional()
+          .describe(
+            "Avoid user's top tracks + high-popularity hits — music the algorithm won't show"
+          ),
       },
     },
     async ({
@@ -86,6 +92,7 @@ export function registerViralTools(server: McpServer) {
       play,
       device_id,
       explore,
+      anti_algorithm,
     }) => {
       try {
         const result = await runMoodQueue({
@@ -99,6 +106,7 @@ export function registerViralTools(server: McpServer) {
           text,
           search_queries,
           explore,
+          anti_algorithm,
         });
         const card = vibeCard({
           label: text.slice(0, 40),

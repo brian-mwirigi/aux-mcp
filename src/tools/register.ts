@@ -6,6 +6,7 @@ import { registerLibraryTools } from "./library.js";
 import { registerPersonalizationTools } from "./personalization.js";
 import { registerHookTools } from "./hooks.js";
 import { registerViralTools } from "./viral.js";
+import { registerPeakTools } from "./peak.js";
 import { registerMetaTools } from "./meta.js";
 import { registerPrompts } from "../prompts.js";
 
@@ -18,5 +19,6 @@ export function registerAllTools(server: McpServer): void {
   registerPersonalizationTools(server);
   registerHookTools(server);
   registerViralTools(server);
+  registerPeakTools(server);
   registerPrompts(server);
 }

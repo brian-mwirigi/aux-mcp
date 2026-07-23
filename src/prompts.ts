@@ -133,4 +133,47 @@ export function registerPrompts(server: McpServer): void {
       ],
     })
   );
+
+  server.registerPrompt(
+    "aux_weekly",
+    {
+      title: "AUX · Weekly Report",
+      description: "Sunday share card — DNA + roast of recent taste.",
+    },
+    () => ({
+      messages: [
+        {
+          role: "user",
+          content: {
+            type: "text",
+            text: "Run weekly_report (short_term). Show both cards. Add one line of human commentary.",
+          },
+        },
+      ],
+    })
+  );
+
+  server.registerPrompt(
+    "aux_autodj",
+    {
+      title: "AUX · Auto-DJ",
+      description: "Start a continuous vibe session.",
+      argsSchema: {
+        vibe: z.string().describe("Vibe to sustain"),
+      },
+    },
+    ({ vibe }) => ({
+      messages: [
+        {
+          role: "user",
+          content: {
+            type: "text",
+            text:
+              `Start Auto-DJ for "${vibe}": invent search_queries + targets, call auto_dj_start, ` +
+              `tell me to run \`npx aux-mcp autodj\` in a terminal to keep refilling.`,
+          },
+        },
+      ],
+    })
+  );
 }

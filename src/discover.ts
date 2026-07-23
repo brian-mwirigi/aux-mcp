@@ -14,6 +14,8 @@ export interface DiscoverOpts {
   explore?: boolean;
   /** Soft cap on unique tracks returned. */
   limit?: number;
+  /** Skip heavy personal-library seeding; prefer catalog / lower popularity. */
+  anti_algorithm?: boolean;
 }
 
 export async function discoverCandidateTracks(
@@ -21,6 +23,7 @@ export async function discoverCandidateTracks(
 ): Promise<{ tracks: any[]; sources: Record<string, number> }> {
   const want = opts.limit ?? 120;
   const explore = opts.explore !== false;
+  const anti = Boolean(opts.anti_algorithm);
   const tracks: any[] = [];
   const seen = new Set<string>();
   const sources: Record<string, number> = {};
@@ -29,6 +32,7 @@ export async function discoverCandidateTracks(
     let added = 0;
     for (const t of items) {
       if (!t?.id || seen.has(t.id)) continue;
+      if (anti && (t.popularity ?? 0) >= 75) continue;
       seen.add(t.id);
       tracks.push(t);
       added++;
@@ -39,6 +43,9 @@ export async function discoverCandidateTracks(
   const queries = uniqueQueries([
     opts.text,
     ...(opts.search_queries ?? []),
+    ...(anti
+      ? ["underground mix", "deep cuts playlist", "obscure indie gems"]
+      : []),
   ]);
 
   // Spotify Web API currently rejects search limit > 10 for many apps.
@@ -157,25 +164,27 @@ export async function discoverCandidateTracks(
     }
   }
 
-  // 5) Personal library as seasoning (not the whole meal)
-  try {
-    const top = await spotify.get<any>(
-      "/me/top/tracks",
-      { time_range: "medium_term", limit: 20 },
-      "user"
-    );
-    push(top.items ?? [], "library_top");
-  } catch {
-    /* */
-  }
-  try {
-    const saved = await spotify.get<any>("/me/tracks", { limit: 20 }, "user");
-    push(
-      (saved.items ?? []).map((i: any) => i.track),
-      "library_saved"
-    );
-  } catch {
-    /* */
+  // 5) Personal library as seasoning (skip / shrink in anti-algorithm mode)
+  if (!anti) {
+    try {
+      const top = await spotify.get<any>(
+        "/me/top/tracks",
+        { time_range: "medium_term", limit: 20 },
+        "user"
+      );
+      push(top.items ?? [], "library_top");
+    } catch {
+      /* */
+    }
+    try {
+      const saved = await spotify.get<any>("/me/tracks", { limit: 20 }, "user");
+      push(
+        (saved.items ?? []).map((i: any) => i.track),
+        "library_saved"
+      );
+    } catch {
+      /* */
+    }
   }
 
   return { tracks: tracks.slice(0, want), sources };
