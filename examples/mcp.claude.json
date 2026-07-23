@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "aux": {
-      "command": "node",
-      "args": ["/absolute/path/to/aux-mcp/dist/server.js"],
+      "command": "npx",
+      "args": ["-y", "@brianmwirigi/aux-mcp"],
       "env": {
         "SPOTIFY_CLIENT_ID": "your_client_id",
         "SPOTIFY_CLIENT_SECRET": "your_client_secret"
