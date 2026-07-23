@@ -10,9 +10,9 @@
 <h1 align="center">Spotify, for your AI.</h1>
 
 <p align="center">
-  <strong>The MCP that doesn't just control Spotify — it <em>takes the aux</em>.</strong><br/>
+  <strong>The MCP that <em>takes the aux</em>.</strong><br/>
   Full API coverage so your agent never stalls.<br/>
-  Viral hooks so humans actually install it.
+  Viral hooks.
 </p>
 
 <p align="center">
