@@ -170,7 +170,7 @@ export function registerPrompts(server: McpServer): void {
             type: "text",
             text:
               `Start Auto-DJ for "${vibe}": invent search_queries + targets, call auto_dj_start, ` +
-              `tell me to run \`npx aux-mcp autodj\` in a terminal to keep refilling.`,
+              `tell me to run \`npx spotify-aux autodj\` in a terminal to keep refilling.`,
           },
         },
       ],

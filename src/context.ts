@@ -138,7 +138,7 @@ async function fetchWeather(location: string): Promise<AmbientContext["weather"]
     const loc = encodeURIComponent(location || "");
     const url = `https://wttr.in/${loc}?format=j1`;
     const res = await fetch(url, {
-      headers: { "User-Agent": "aux-mcp" },
+      headers: { "User-Agent": "spotify-aux" },
       signal: AbortSignal.timeout(4000),
     });
     if (!res.ok) return undefined;

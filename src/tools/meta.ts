@@ -26,7 +26,7 @@ export function registerMetaTools(server: McpServer) {
           redirect_uri: config.redirectUri,
           hint: isUserLoggedIn(config)
             ? "User auth OK — playback/library/hooks available."
-            : "Run `npx aux-mcp login` (or npm run login) for playback, playlists, library, and hooks.",
+            : "Run `npx spotify-aux login` (or npm run login) for playback, playlists, library, and hooks.",
           taste_memory: summarizeMemory(),
         });
       } catch (e) {

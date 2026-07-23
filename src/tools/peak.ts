@@ -169,7 +169,7 @@ export function registerPeakTools(server: McpServer) {
     {
       title: "Auto-DJ Start",
       description:
-        "HOOK: Start an Auto-DJ session. Keeps refilling the queue when tracks run low. Call auto_dj_tick periodically (or run `npx aux-mcp autodj`).",
+        "HOOK: Start an Auto-DJ session. Keeps refilling the queue when tracks run low. Call auto_dj_tick periodically (or run `npx spotify-aux autodj`).",
       inputSchema: {
         text: z.string().min(1),
         search_queries: z.array(z.string()).min(1).max(8),
@@ -194,7 +194,7 @@ export function registerPeakTools(server: McpServer) {
         const tick = await tickAutoDj();
         return ok({
           ok: true,
-          message: "Auto-DJ on. Run auto_dj_tick every ~30s, or `npx aux-mcp autodj`.",
+          message: "Auto-DJ on. Run auto_dj_tick every ~30s, or `npx spotify-aux autodj`.",
           session,
           tick,
         });
@@ -247,7 +247,7 @@ export function registerPeakTools(server: McpServer) {
     {
       title: "Party Room Create",
       description:
-        "HOOK: Create a shareable party room code for friends. Host `npx aux-mcp party-host` + tunnel; friends set AUX_PARTY_RELAY.",
+        "HOOK: Create a shareable party room code for friends. Host `npx spotify-aux party-host` + tunnel; friends set AUX_PARTY_RELAY.",
       inputSchema: { name: z.string().optional() },
     },
     async ({ name }) => {
@@ -264,7 +264,7 @@ export function registerPeakTools(server: McpServer) {
         });
         const linkHint = process.env.AUX_PARTY_RELAY
           ? `Relay: ${process.env.AUX_PARTY_RELAY}/rooms/${room.code}`
-          : "Run `npx aux-mcp party-host` and share a tunnel URL as AUX_PARTY_RELAY";
+          : "Run `npx spotify-aux party-host` and share a tunnel URL as AUX_PARTY_RELAY";
         return okCard(card, {
           code: room.code,
           name: room.name,

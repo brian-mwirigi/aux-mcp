@@ -2,12 +2,12 @@
 /**
  * AUX — Spotify MCP + CLI
  *
- *   npx aux-mcp              MCP stdio
- *   npx aux-mcp login
- *   npx aux-mcp autodj      Auto-DJ loop
- *   npx aux-mcp party-host  Friend-link relay
- *   npx aux-mcp web         Roast site
- *   npx aux-mcp demo        Terminal demo
+ *   npx spotify-aux              MCP stdio
+ *   npx spotify-aux login
+ *   npx spotify-aux autodj      Auto-DJ loop
+ *   npx spotify-aux party-host  Friend-link relay
+ *   npx spotify-aux web         Roast site
+ *   npx spotify-aux demo        Terminal demo
  */
 import { createServer } from "node:http";
 import { readFileSync, existsSync } from "node:fs";
@@ -76,13 +76,13 @@ async function main() {
 
   if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
     console.error(
-      "aux-mcp: set SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET (MCP env or .env)."
+      "spotify-aux: set SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET (MCP env or .env)."
     );
     process.exit(1);
   }
 
   const server = new McpServer(
-    { name: "aux-mcp", version: "0.4.0" },
+    { name: "spotify-aux", version: "0.4.0" },
     { instructions: INSTRUCTIONS }
   );
   registerAllTools(server);
@@ -93,7 +93,7 @@ async function runAutoDjLoop() {
   const session = loadAutoDj();
   if (!session?.active) {
     console.log(
-      "No Auto-DJ session. In chat: auto_dj_start with a vibe, then run this again.\nOr start from Agent, then: npx aux-mcp autodj"
+      "No Auto-DJ session. In chat: auto_dj_start with a vibe, then run this again.\nOr start from Agent, then: npx spotify-aux autodj"
     );
     process.exit(1);
   }
@@ -160,7 +160,7 @@ function resolveWebDir(): string {
   for (const c of candidates) {
     if (existsSync(join(c, "index.html"))) return c;
   }
-  throw new Error("web/ folder not found — reinstall aux-mcp or run from repo root");
+  throw new Error("web/ folder not found — reinstall spotify-aux or run from repo root");
 }
 
 async function runDemo() {
@@ -194,7 +194,7 @@ async function runDemo() {
 
   Also: roast · DNA · battle · party rooms · auto-DJ · weekly report
 
-  → npx aux-mcp login
+  → npx spotify-aux login
   → add to Cursor MCP
   → talk like a human
 `);
@@ -207,14 +207,14 @@ function printHelp(): void {
 ║     Spotify, for your AI.            ║
 ╚══════════════════════════════════════╝
 
-  npx aux-mcp              Start MCP (stdio)
-  npx aux-mcp login        Browser OAuth
-  npx aux-mcp status
-  npx aux-mcp autodj       Auto-DJ refill loop
-  npx aux-mcp party-host   Friend-link relay (:7655)
-  npx aux-mcp web          Roast site (:7656)
-  npx aux-mcp demo         Terminal trailer
-  npx aux-mcp help
+  npx spotify-aux              Start MCP (stdio)
+  npx spotify-aux login        Browser OAuth
+  npx spotify-aux status
+  npx spotify-aux autodj       Auto-DJ refill loop
+  npx spotify-aux party-host   Friend-link relay (:7655)
+  npx spotify-aux web          Roast site (:7656)
+  npx spotify-aux demo         Terminal trailer
+  npx spotify-aux help
 
 Repo: https://github.com/brian-mwirigi/aux-mcp
 `);
@@ -231,7 +231,7 @@ AUX status
   Client ID     ${config.clientId.slice(0, 8)}…
   Redirect      ${config.redirectUri}
   Token dir     ${config.tokenDir}
-  User login    ${loggedIn ? "yes ✓" : "no — npx aux-mcp login"}
+  User login    ${loggedIn ? "yes ✓" : "no — npx spotify-aux login"}
   Auto-DJ       ${dj?.active ? `on · ${dj.text}` : "off"}
 `);
   } catch (e) {
@@ -245,6 +245,6 @@ function sleep(ms: number) {
 }
 
 main().catch((err) => {
-  console.error("aux-mcp failed:", err instanceof Error ? err.message : err);
+  console.error("spotify-aux failed:", err instanceof Error ? err.message : err);
   process.exit(1);
 });

@@ -2,7 +2,7 @@
 /**
  * One-time Spotify OAuth login (Authorization Code + PKCE).
  *
- *   npx aux-mcp login
+ *   npx spotify-aux login
  *   npm run login
  */
 import http from "node:http";

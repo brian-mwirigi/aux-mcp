@@ -7,13 +7,13 @@
 
 <p align="center">
   <a href="https://github.com/brian-mwirigi/aux-mcp"><img alt="GitHub" src="https://img.shields.io/badge/github-brian--mwirigi%2Faux--mcp-1DB954?style=flat-square" /></a>
-  <img alt="npm" src="https://img.shields.io/badge/npx-%40brianmwirigi%2Faux--mcp-111?style=flat-square" />
+  <img alt="npm" src="https://img.shields.io/badge/npx-spotify--aux-111?style=flat-square" />
   <img alt="hooks" src="https://img.shields.io/badge/hooks-peak-ff2d55?style=flat-square" />
 </p>
 
 ```bash
-npx -y @brianmwirigi/aux-mcp demo
-npx -y @brianmwirigi/aux-mcp login
+npx -y spotify-aux demo
+npx -y spotify-aux login
 ```
 
 Then in Cursor: *“rainy 2am drive”* · *“roast my top tracks”* · *“start auto DJ”*
@@ -34,11 +34,11 @@ http://127.0.0.1:7654/callback
 3. Install & login:
 
 ```bash
-npm i -g @brianmwirigi/aux-mcp
+npm i -g spotify-aux
 # or: git clone … && npm i && npm run build
 export SPOTIFY_CLIENT_ID=…
 export SPOTIFY_CLIENT_SECRET=…
-npx -y @brianmwirigi/aux-mcp login
+npx -y spotify-aux login
 ```
 
 4. Cursor MCP config:
@@ -48,7 +48,7 @@ npx -y @brianmwirigi/aux-mcp login
   "mcpServers": {
     "aux": {
       "command": "npx",
-      "args": ["-y", "@brianmwirigi/aux-mcp"],
+      "args": ["-y", "spotify-aux"],
       "env": {
         "SPOTIFY_CLIENT_ID": "your_id",
         "SPOTIFY_CLIENT_SECRET": "your_secret"
@@ -69,10 +69,10 @@ From a local clone, point `command`/`args` at `node` + `dist/server.js` instead.
 | *rainy 2am drive* | `vibe` — LLM invents searches, catalog DJ |
 | *music Spotify won’t show me* | `vibe` + `anti_algorithm` |
 | *DJ for right now* | `context_vibe` — time + weather |
-| *keep it going* | `auto_dj_start` → `npx aux-mcp autodj` |
+| *keep it going* | `auto_dj_start` → `npx spotify-aux autodj` |
 | *roast my week* | `weekly_report` |
 | *party room* | `party_room_create` + friend relay |
-| *roast this playlist* (no Cursor) | `npx aux-mcp web` |
+| *roast this playlist* (no Cursor) | `npx spotify-aux web` |
 
 Every hook can drop an **ASCII card** made for screenshots.
 
@@ -80,7 +80,7 @@ Every hook can drop an **ASCII card** made for screenshots.
 
 ```bash
 # host machine
-npx -y @brianmwirigi/aux-mcp party-host
+npx -y spotify-aux party-host
 # tunnel it, e.g. cloudflared tunnel --url http://127.0.0.1:7655
 
 # everyone
@@ -92,7 +92,7 @@ Then `party_room_create` → share the **code** → friends `party_room_add` / `
 ### Roast site (no MCP)
 
 ```bash
-npx -y @brianmwirigi/aux-mcp web
+npx -y spotify-aux web
 # open http://127.0.0.1:7656
 ```
 
@@ -117,16 +117,16 @@ Search, browse, playback, playlists, library, personalization — full Web API s
 ## CLI
 
 ```bash
-npx -y @brianmwirigi/aux-mcp              # MCP server
-npx -y @brianmwirigi/aux-mcp login
-npx -y @brianmwirigi/aux-mcp status
-npx -y @brianmwirigi/aux-mcp autodj       # refill loop
-npx -y @brianmwirigi/aux-mcp party-host   # friend relay :7655
-npx -y @brianmwirigi/aux-mcp web          # roast site :7656
-npx -y @brianmwirigi/aux-mcp demo
+npx -y spotify-aux              # MCP server
+npx -y spotify-aux login
+npx -y spotify-aux status
+npx -y spotify-aux autodj       # refill loop
+npx -y spotify-aux party-host   # friend relay :7655
+npx -y spotify-aux web          # roast site :7656
+npx -y spotify-aux demo
 ```
 
-After `npm i -g @brianmwirigi/aux-mcp`, the short binary `aux-mcp` works too.
+After `npm i -g spotify-aux`, binaries: `spotify-aux` and `aux-mcp`.
 
 ---
 
@@ -135,7 +135,7 @@ After `npm i -g @brianmwirigi/aux-mcp`, the short binary `aux-mcp` works too.
 | Flow | Unlocks |
 |------|---------|
 | Client ID + Secret | Search / catalog |
-| `npx aux-mcp login` | Playback, library, hooks, Auto-DJ |
+| `npx spotify-aux login` | Playback, library, hooks, Auto-DJ |
 
 Tokens → `~/.aux-mcp/`. Premium + open Spotify app for playback.
 

@@ -110,7 +110,7 @@ export async function getUserAccessToken(
   const cached = readStoredToken(config.tokenFile);
   if (!cached?.refresh_token && !cached?.access_token) {
     throw new AuthError(
-      "Not logged in. Run `npx aux-mcp login` (or `npm run login`) once to authorize Spotify.",
+      "Not logged in. Run `npx spotify-aux login` (or `npm run login`) once to authorize Spotify.",
       "not_logged_in"
     );
   }

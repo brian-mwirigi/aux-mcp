@@ -1,13 +1,11 @@
 ﻿{
-  "name": "@brianmwirigi/aux-mcp",
+  "name": "spotify-aux",
   "version": "0.4.0",
-  "publishConfig": {
-    "access": "public"
-  },
   "description": "AUX — Spotify for your AI. Vibe DJ, roast cards, battles, party rooms, auto-DJ. Full Spotify MCP.",
   "license": "MIT",
   "type": "module",
   "bin": {
+    "spotify-aux": "dist/server.js",
     "aux-mcp": "dist/server.js"
   },
   "main": "dist/server.js",
@@ -54,7 +52,8 @@
     "cursor",
     "cline",
     "aux",
-    "dj"
+    "dj",
+    "spotify-aux"
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
