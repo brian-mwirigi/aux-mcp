@@ -11,6 +11,20 @@ export function ok(data: unknown) {
   };
 }
 
+/** Card-first response — ASCII share card on top, JSON payload under it. */
+export function okCard(card: string, data?: unknown) {
+  const parts: Array<{ type: "text"; text: string }> = [
+    { type: "text", text: card },
+  ];
+  if (data !== undefined) {
+    parts.push({
+      type: "text",
+      text: typeof data === "string" ? data : JSON.stringify(data, null, 2),
+    });
+  }
+  return { content: parts };
+}
+
 export function fail(error: unknown) {
   const message =
     error instanceof Error

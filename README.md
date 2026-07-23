@@ -1,71 +1,81 @@
-# AUX
+<p align="center">
+  <code>█████╗ ██╗   ██╗██╗  ██╗</code><br/>
+  <code>██╔══██╗██║   ██║╚██╗██╔╝</code><br/>
+  <code>███████║██║   ██║ ╚███╔╝ </code><br/>
+  <code>██╔══██║██║   ██║ ██╔██╗ </code><br/>
+  <code>██║  ██║╚██████╔╝██╔╝ ██╗</code><br/>
+  <code>╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝</code>
+</p>
 
-**Spotify, for your AI.**
+<h1 align="center">Spotify, for your AI.</h1>
 
-An MCP server that doesn’t just wrap the Spotify API — it gives Claude / Cursor / Cline the aux cord: full playback + library control, plus hooks nobody else ships.
+<p align="center">
+  <strong>The MCP that doesn't just control Spotify — it <em>takes the aux</em>.</strong><br/>
+  Full API coverage so your agent never stalls.<br/>
+  Viral hooks so humans actually install it.
+</p>
+
+<p align="center">
+  <a href="https://github.com/brian-mwirigi/aux-mcp"><img alt="GitHub" src="https://img.shields.io/badge/github-brian--mwirigi%2Faux--mcp-1DB954?style=flat-square" /></a>
+  <img alt="MCP" src="https://img.shields.io/badge/MCP-58%2B%20tools-111111?style=flat-square" />
+  <img alt="Hooks" src="https://img.shields.io/badge/hooks-screenshot%20bait-ff2d55?style=flat-square" />
+  <img alt="Node" src="https://img.shields.io/badge/node-%3E%3D20-339933?style=flat-square" />
+</p>
+
+---
+
+## One prompt. Instant lore.
+
+```
+vibe: rainy 2am drive
+```
+
+```
+┌──────────────────────────────────────────┐
+│ AUX · VIBE                               │
+├──────────────────────────────────────────┤
+│ LATE_NIGHT + RAINY                       │
+│ city lights, empty freeway × gray sky    │
+│                                          │
+│ energy  ████░░░░░░░░░░░░ 0.31            │
+│ valence ███░░░░░░░░░░░░░ 0.33            │
+│ tempo   █████░░░░░░░░░░░ 92bpm           │
+└──────────────────────────────────────────┘
+  aux-mcp · pass the aux
+```
+
+Other nuclear prompts:
+
+| Say this | Tool |
+|----------|------|
+| *“Roast my Discover Weekly”* | `roast_my_playlist` |
+| *“DNA this playlist”* | `playlist_dna` |
+| *“Battle my gym playlist vs hers”* | `aux_battle` |
+| *“Blend us into one playlist”* | `blend_tastes` |
+| *“Start party mode — vote on the next track”* | `party_*` |
+| *“What's playing — make it cinematic”* | `whats_playing_story` |
+
+Every hook returns a **shareable ASCII card**. That's the screenshot. That's the tweet. That's the install.
+
+---
+
+## Install in 60 seconds
 
 ```bash
 git clone https://github.com/brian-mwirigi/aux-mcp.git
-cd aux-mcp && npm i && npm run build
-cp .env.example .env   # add Client ID + Secret
-npm run login          # browser → done
+cd aux-mcp
+npm i && npm run build
+cp .env.example .env   # Client ID + Secret
+npm run login          # browser PKCE → ~/.aux-mcp
 ```
 
-Then paste one config block (below) and ask:
-
-> *“Set a late-night drive mood and play it.”*  
-> *“Roast my Discover Weekly.”*  
-> *“Make this playlist 20% more upbeat.”*
-
----
-
-## Why AUX (not another 40-tool wrapper)
-
-| Everyone else | AUX |
-|---|---|
-| Seed tracks / genres | **`set_mood`** — energy · valence · tempo → real queue |
-| Add / remove tracks | **`adjust_playlist_vibe`** — reshape by audio features |
-| — | **`roast_my_playlist`** — shareable taste assassination |
-| — | **`music_compatibility`** — score you vs a friend’s playlist |
-| Amnesia each chat | **Taste memory** — skips/repeats bias future vibes |
-
-Underneath: **58 tools** so the model never stalls mid-task (*“I’d add that to a playlist but… no tool”*). Infrastructure keeps it installed. Hooks get it installed.
-
----
-
-## Setup (about 60 seconds)
-
-### 1. Spotify app
-
-1. [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) → Create app  
-2. Settings → Redirect URIs → add **exactly**:
+**Spotify Dashboard** → Redirect URI (exact):
 
 ```
 http://localhost:7654/callback
 ```
 
-3. Copy **Client ID** + **Client Secret**
-
-### 2. Install + login
-
-```bash
-npm install
-npm run build
-cp .env.example .env
-# edit .env with your credentials
-npm run login
-```
-
-Login opens a browser (PKCE), writes tokens to `~/.aux-mcp/`, auto-refreshes forever after.
-
-```bash
-npm run status    # sanity check
-```
-
-### 3. Wire your client
-
-**Cursor** — project `.cursor/mcp.json` or global MCP settings  
-(see also [`examples/mcp.cursor.json`](examples/mcp.cursor.json)):
+### Cursor
 
 ```json
 {
@@ -82,8 +92,7 @@ npm run status    # sanity check
 }
 ```
 
-**Claude Desktop** — `claude_desktop_config.json`  
-(see [`examples/mcp.claude.json`](examples/mcp.claude.json)):
+### Claude Desktop
 
 ```json
 {
@@ -100,89 +109,83 @@ npm run status    # sanity check
 }
 ```
 
-Restart the client. Playback needs **Premium** + Spotify open on a device (`get_devices` if play fails).
+Copy-paste configs also live in [`examples/`](examples/).
 
 ---
 
-## Hooks (the reason you’re here)
+## The hook stack (why this spreads)
 
-| Tool | Try saying |
-|------|------------|
-| `set_mood` | “Energy 0.25, valence 0.4, tempo 85 — play it” |
-| `adjust_playlist_vibe` | “Make *Gym* 20% more upbeat” |
-| `roast_my_playlist` | “Roast my top tracks this month” |
-| `music_compatibility` | “How compatible am I with this playlist?” |
-| `record_taste_feedback` | “I skipped that — remember” |
-| `get_taste_memory` | “What have you learned about my taste?” |
+| Hook | Magnitude |
+|------|-----------|
+| **`vibe`** | Natural-language DJ. Not seeds. Not genres. *Vibes.* |
+| **`roast_my_playlist`** | Graded taste assassination. Built for group chats. |
+| **`playlist_dna`** | Lab-report fingerprint. Archetypes like `MAINSTAGE MENACE`. |
+| **`aux_battle`** | Two playlists. One aux cord. |
+| **`blend_tastes`** | Musical blind date → new playlist at the midpoint. |
+| **`party_*`** | Chat democracy for the next track. |
+| **`whats_playing_story`** | Cinematic caption for right now. |
+| **Taste memory** | Skips/repeats persist across sessions and bias future vibes. |
+
+Prompts registered for clients that support them: `aux_vibe` · `aux_roast` · `aux_battle` · `aux_party` · `aux_dna`.
 
 ---
 
-## Full tool map
+## Full arsenal (so the agent never hits a wall)
 
 <details>
-<summary><strong>Search & browse</strong> (read-only — client credentials enough)</summary>
+<summary><strong>Viral hooks</strong></summary>
+
+`vibe` · `list_vibes` · `set_mood` · `adjust_playlist_vibe` · `roast_my_playlist` · `playlist_dna` · `aux_battle` · `blend_tastes` · `music_compatibility` · `whats_playing_story` · `party_status` · `party_open` · `party_add` · `party_vote` · `party_play_winner` · `party_clear` · `record_taste_feedback` · `get_taste_memory` · `auth_status`
+</details>
+
+<details>
+<summary><strong>Search & browse</strong></summary>
 
 `search_tracks` · `search_artists` · `search_albums` · `search_playlists` · `get_track` · `get_artist` · `get_artist_top_tracks` · `get_artist_albums` · `get_album` · `get_album_tracks` · `get_playlist` · `get_playlist_tracks` · `get_recommendations` · `get_audio_features` · `get_several_audio_features` · `get_new_releases` · `get_categories` · `get_featured_playlists`
 </details>
 
 <details>
-<summary><strong>Playback</strong> (user + active device)</summary>
+<summary><strong>Playback</strong></summary>
 
 `get_current_playback` · `get_currently_playing` · `play` · `pause` · `next_track` · `previous_track` · `seek` · `set_volume` · `set_shuffle` · `set_repeat_mode` · `add_to_queue` · `get_queue` · `get_devices` · `transfer_playback`
 </details>
 
 <details>
-<summary><strong>Playlists</strong></summary>
+<summary><strong>Playlists · Library · You</strong></summary>
 
-`get_my_playlists` · `create_playlist` · `add_tracks_to_playlist` · `remove_tracks_from_playlist` · `reorder_playlist_items` · `update_playlist_details`
-</details>
-
-<details>
-<summary><strong>Library</strong></summary>
-
-`get_saved_tracks` · `save_tracks` · `remove_saved_tracks` · `check_saved_tracks` · `get_saved_albums` · `save_albums`
-</details>
-
-<details>
-<summary><strong>Personalization</strong></summary>
-
-`get_top_tracks` · `get_top_artists` · `get_recently_played` · `get_followed_artists` · `follow_artist` · `unfollow_artist` · `check_following_artist` · `get_user_profile`
-</details>
-
-<details>
-<summary><strong>Hooks + meta</strong></summary>
-
-`set_mood` · `adjust_playlist_vibe` · `roast_my_playlist` · `music_compatibility` · `record_taste_feedback` · `get_taste_memory` · `auth_status`
+`get_my_playlists` · `create_playlist` · `add_tracks_to_playlist` · `remove_tracks_from_playlist` · `reorder_playlist_items` · `update_playlist_details` · `get_saved_tracks` · `save_tracks` · `remove_saved_tracks` · `check_saved_tracks` · `get_saved_albums` · `save_albums` · `get_top_tracks` · `get_top_artists` · `get_recently_played` · `get_followed_artists` · `follow_artist` · `unfollow_artist` · `check_following_artist` · `get_user_profile`
 </details>
 
 ---
 
-## Auth model
+## Auth
 
-| Flow | How | Unlocks |
-|------|-----|---------|
-| Client credentials | Automatic from ID/Secret | Search, browse, catalog |
-| User PKCE | `npm run login` once | Playback, playlists, library, personalization, hooks |
+| Flow | Unlocks |
+|------|---------|
+| Client ID + Secret | Search / browse / catalog |
+| `npm run login` (PKCE, once) | Playback, library, playlists, **all hooks** |
 
-Tokens: `~/.aux-mcp/` (`token.json`, `client-token.json`, `taste-memory.json`). Override with `AUX_MCP_TOKEN_DIR`.
+Tokens → `~/.aux-mcp/`. Playback needs **Premium** + an open Spotify device.
 
-IDs accept bare IDs, `spotify:` URIs, or `open.spotify.com` URLs.
-
-> Spotify has restricted `/recommendations` (and sometimes audio-features) for newer apps. If those 403, use **`set_mood`** — it builds from your library / top tracks instead.
+> Some Spotify apps get 403 on `/recommendations` or audio-features. **`vibe`** still works — it scores your own library/top tracks.
 
 ---
 
 ## CLI
 
 ```bash
-npx aux-mcp          # MCP stdio server
-npx aux-mcp login    # browser OAuth
-npx aux-mcp status   # creds + login check
+npx aux-mcp          # MCP server
+npx aux-mcp login
+npx aux-mcp status
 npx aux-mcp help
 ```
 
 ---
 
-## License
+## Star it. Pass the aux.
 
-MIT · [brian-mwirigi/aux-mcp](https://github.com/brian-mwirigi/aux-mcp)
+If AUX makes your agent actually fun — star the repo, post a roast card, tag a friend into an `aux_battle`.
+
+**[github.com/brian-mwirigi/aux-mcp](https://github.com/brian-mwirigi/aux-mcp)**
+
+MIT

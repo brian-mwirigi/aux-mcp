@@ -5,11 +5,6 @@
  *   node dist/server.js          → MCP over stdio
  *   node dist/server.js login    → browser OAuth (PKCE)
  *   node dist/server.js help
- *
- * Env:
- *   SPOTIFY_CLIENT_ID / SPOTIFY_CLIENT_SECRET  required
- *   SPOTIFY_REDIRECT_URI                        optional
- *   AUX_MCP_TOKEN_DIR                           optional (~/.aux-mcp)
  */
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -18,19 +13,24 @@ import { registerAllTools } from "./tools/register.js";
 import { runLoginFlow } from "./login.js";
 import { loadConfig, isUserLoggedIn } from "./config.js";
 
-const INSTRUCTIONS = `You are connected to AUX — a full Spotify MCP.
+const INSTRUCTIONS = `You have AUX — Spotify for your AI.
 
-Prefer hooks when the user speaks in vibes or jokes:
-- Mood / energy / "play something chill" → set_mood(energy, valence, tempo)
-- "More upbeat" / reshape a playlist → adjust_playlist_vibe
-- Roast my taste / playlist → roast_my_playlist
-- Compare with a friend → music_compatibility
-- User skips or replays a song → record_taste_feedback
+FLAGSHIP HOOKS (prefer these — they return screenshot-ready ASCII cards):
+- Natural language mood → \`vibe\` ("rainy 2am drive", "gym but cinematic")
+- Taste roast → \`roast_my_playlist\`
+- DNA fingerprint → \`playlist_dna\`
+- Playlist fight → \`aux_battle\`
+- Blind-date playlist → \`blend_tastes\`
+- Group DJ voting → \`party_add\` / \`party_vote\` / \`party_play_winner\`
+- Now-playing lore → \`whats_playing_story\`
+- Numeric mood → \`set_mood\` · reshape playlist → \`adjust_playlist_vibe\`
+- Skips/repeats → \`record_taste_feedback\` (biases future vibes)
 
-For normal Spotify ops use the matching tool (search_*, play/pause/next, playlists, library, get_top_*).
+Always surface the ASCII card from tool results when present — that's the shareable artifact.
+For normal Spotify ops use search_*, play/pause/next, playlists, library, get_top_*.
 IDs may be bare IDs, spotify: URIs, or open.spotify.com URLs.
-Playback needs Spotify Premium + an active device — call get_devices first if play fails.
-If get_recommendations or audio-features fail (Spotify app restrictions), fall back to set_mood.`;
+Playback needs Premium + active device — get_devices if play fails.
+If recommendations/audio-features 403, fall back to \`vibe\` / \`set_mood\`.`;
 
 async function main() {
   loadDotEnv();
@@ -40,17 +40,14 @@ async function main() {
     await runLoginFlow();
     return;
   }
-
   if (cmd === "status") {
     printStatus();
     return;
   }
-
   if (cmd === "help" || cmd === "--help" || cmd === "-h") {
     printHelp();
     return;
   }
-
   if (cmd && cmd !== "serve") {
     console.error(`Unknown command: ${cmd}\n`);
     printHelp();
@@ -65,7 +62,7 @@ async function main() {
   }
 
   const server = new McpServer(
-    { name: "aux-mcp", version: "0.2.0" },
+    { name: "aux-mcp", version: "0.3.0" },
     { instructions: INSTRUCTIONS }
   );
 
@@ -77,19 +74,18 @@ async function main() {
 
 function printHelp(): void {
   console.log(`
-AUX — Spotify for your AI (MCP)
+╔══════════════════════════════════════╗
+║           AUX  ·  mcp                ║
+║     Spotify, for your AI.            ║
+╚══════════════════════════════════════╝
 
-Usage:
   aux-mcp              Start MCP server (stdio)
-  aux-mcp login        One-time browser OAuth (PKCE)
-  aux-mcp status       Show auth / token paths
-  aux-mcp help         This message
+  aux-mcp login        Browser OAuth (PKCE)
+  aux-mcp status       Auth check
+  aux-mcp help
 
-Setup:
-  1. Spotify Dashboard → Redirect URI: http://localhost:7654/callback
-  2. Copy Client ID + Secret into .env or MCP config
-  3. aux-mcp login
-  4. Point Cursor / Claude at this binary
+Flagship tools: vibe · roast_my_playlist · playlist_dna
+                aux_battle · blend_tastes · party_* 
 
 Repo: https://github.com/brian-mwirigi/aux-mcp
 `);

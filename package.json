@@ -1,7 +1,7 @@
 ﻿{
   "name": "aux-mcp",
-  "version": "0.2.0",
-  "description": "AUX — Spotify for your AI. Full-coverage MCP + vibe, roast, compatibility, and taste-memory hooks.",
+  "version": "0.3.0",
+  "description": "AUX — Spotify for your AI. Natural-language vibe DJ, roast cards, playlist battles, party mode. Full Spotify MCP coverage.",
   "license": "MIT",
   "type": "module",
   "bin": {

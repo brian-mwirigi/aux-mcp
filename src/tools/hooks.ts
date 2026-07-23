@@ -1,131 +1,28 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { spotify, SpotifyApiError } from "../client.js";
+import { spotify } from "../client.js";
 import {
   ok,
   fail,
   extractId,
   toTrackUri,
   summarizeTrack,
+  okCard,
 } from "../format.js";
 import {
   recordFeedback,
   summarizeMemory,
-  getAvoidTrackIds,
-  getPreferTrackIds,
   type FeedbackAction,
 } from "../memory.js";
-
-interface AudioFeatures {
-  id: string;
-  energy: number;
-  valence: number;
-  tempo: number;
-  danceability: number;
-  acousticness: number;
-  instrumentalness: number;
-  speechiness: number;
-  loudness: number;
-}
-
-function vibeDistance(
-  f: AudioFeatures,
-  target: { energy: number; valence: number; tempo: number }
-): number {
-  // Normalize tempo to 0-1 around 40-220 BPM.
-  const tempoN = (f.tempo - 40) / 180;
-  const tTempo = (target.tempo - 40) / 180;
-  const de = f.energy - target.energy;
-  const dv = f.valence - target.valence;
-  const dt = tempoN - tTempo;
-  return Math.sqrt(de * de + dv * dv + dt * dt);
-}
-
-async function fetchAudioFeatures(ids: string[]): Promise<AudioFeatures[]> {
-  const features: AudioFeatures[] = [];
-  for (let i = 0; i < ids.length; i += 100) {
-    const chunk = ids.slice(i, i + 100);
-    try {
-      const data = await spotify.get<any>("/audio-features", {
-        ids: chunk.join(","),
-      });
-      for (const f of data.audio_features ?? []) {
-        if (f?.id) features.push(f);
-      }
-    } catch (e) {
-      // Audio features may be restricted — rethrow with context
-      if (e instanceof SpotifyApiError) throw e;
-      throw e;
-    }
-  }
-  return features;
-}
-
-async function collectCandidateTracks(limit: number): Promise<any[]> {
-  const tracks: any[] = [];
-  const seen = new Set<string>();
-
-  const push = (items: any[]) => {
-    for (const t of items) {
-      if (!t?.id || seen.has(t.id)) continue;
-      seen.add(t.id);
-      tracks.push(t);
-    }
-  };
-
-  try {
-    const top = await spotify.get<any>(
-      "/me/top/tracks",
-      { time_range: "medium_term", limit: 50 },
-      "user"
-    );
-    push(top.items ?? []);
-  } catch {
-    // ignore if no user auth
-  }
-
-  try {
-    const recent = await spotify.get<any>(
-      "/me/player/recently-played",
-      { limit: 50 },
-      "user"
-    );
-    push((recent.items ?? []).map((i: any) => i.track));
-  } catch {
-    // ignore
-  }
-
-  try {
-    const saved = await spotify.get<any>(
-      "/me/tracks",
-      { limit: 50 },
-      "user"
-    );
-    push((saved.items ?? []).map((i: any) => i.track));
-  } catch {
-    // ignore
-  }
-
-  // Top artists → their top tracks to widen the pool
-  try {
-    const artists = await spotify.get<any>(
-      "/me/top/artists",
-      { time_range: "medium_term", limit: 5 },
-      "user"
-    );
-    for (const a of artists.items ?? []) {
-      const top = await spotify.get<any>(`/artists/${a.id}/top-tracks`, {
-        market: "US",
-      });
-      push(top.tracks ?? []);
-      if (tracks.length >= limit * 4) break;
-    }
-  } catch {
-    // ignore
-  }
-
-  return tracks.slice(0, Math.max(limit * 4, 80));
-}
+import {
+  type AudioFeatures,
+  vibeDistance,
+  fetchAudioFeatures,
+  runMoodQueue,
+  loadPlaylistTracks,
+  computeTasteStats,
+} from "../mood-engine.js";
+import { roastCard, vibeCard } from "../cards.js";
 
 export function registerHookTools(server: McpServer) {
   server.registerTool(
@@ -155,78 +52,22 @@ export function registerHookTools(server: McpServer) {
     },
     async ({ energy, valence, tempo, limit, play, device_id }) => {
       try {
-        const n = limit ?? 15;
-        const candidates = await collectCandidateTracks(n);
-        if (!candidates.length) {
-          return fail(
-            "No candidate tracks found. Log in (`npm run login`) and listen/like some music first."
-          );
-        }
-
-        const avoid = new Set(getAvoidTrackIds());
-        const prefer = new Set(getPreferTrackIds());
-        const filtered = candidates.filter((t) => !avoid.has(t.id));
-        const ids = filtered.map((t) => t.id);
-        const features = await fetchAudioFeatures(ids);
-        const byId = new Map(features.map((f) => [f.id, f]));
-
-        const scored = filtered
-          .map((t) => {
-            const f = byId.get(t.id);
-            if (!f) return null;
-            let dist = vibeDistance(f, { energy, valence, tempo });
-            if (prefer.has(t.id)) dist *= 0.7; // bias toward remembered likes/repeats
-            return { track: t, features: f, distance: dist };
-          })
-          .filter(Boolean) as Array<{
-          track: any;
-          features: AudioFeatures;
-          distance: number;
-        }>;
-
-        scored.sort((a, b) => a.distance - b.distance);
-        const picked = scored.slice(0, n);
-
-        if (!picked.length) {
-          return fail(
-            "Could not score tracks (audio-features unavailable?). Try get_recommendations as a fallback."
-          );
-        }
-
-        const uris = picked.map((p) => toTrackUri(p.track.id));
-        const shouldPlay = play !== false;
-
-        if (shouldPlay) {
-          await spotify.put(
-            "/me/player/play",
-            { uris },
-            { device_id },
-            "user"
-          );
-        } else {
-          for (const uri of uris) {
-            await spotify.post(
-              "/me/player/queue",
-              undefined,
-              { uri, device_id },
-              "user"
-            );
-          }
-        }
-
-        return ok({
-          vibe: { energy, valence, tempo },
-          played: shouldPlay,
-          matched: picked.map((p) => ({
-            ...summarizeTrack(p.track),
-            energy: p.features.energy,
-            valence: p.features.valence,
-            tempo: p.features.tempo,
-            vibe_distance: Number(p.distance.toFixed(3)),
-          })),
-          avoided_from_memory: avoid.size,
-          preferred_boosted: picked.filter((p) => prefer.has(p.track.id)).length,
+        const result = await runMoodQueue({
+          energy,
+          valence,
+          tempo,
+          limit,
+          play,
+          device_id,
         });
+        const card = vibeCard({
+          label: "CUSTOM MOOD",
+          energy,
+          valence,
+          tempo,
+          tracks: result.matched,
+        });
+        return okCard(card, result);
       } catch (e) {
         return fail(e);
       }
@@ -397,13 +238,16 @@ export function registerHookTools(server: McpServer) {
 
         const features = await fetchAudioFeatures(tracks.map((t) => t.id));
         const stats = computeTasteStats(tracks, features);
-        const roast = buildRoast(stats);
+        const { grade, lines, roast } = buildRoast(stats);
+        const card = roastCard({ grade, lines, source });
 
-        return ok({
+        return okCard(card, {
           source,
           roast,
+          grade,
           stats,
           sample_tracks: tracks.slice(0, 10).map(summarizeTrack),
+          share_tip: "Post the card. Watch friendships end.",
         });
       } catch (e) {
         return fail(e);
@@ -561,152 +405,55 @@ function clamp01(n: number) {
   return Math.min(1, Math.max(0, n));
 }
 
-async function loadPlaylistTracks(playlistId: string): Promise<any[]> {
-  const data = await spotify.get<any>(`/playlists/${playlistId}/tracks`, {
-    limit: 100,
-  });
-  return (data.items ?? []).map((i: any) => i.track).filter((t: any) => t?.id);
-}
-
-function computeTasteStats(tracks: any[], features: AudioFeatures[]) {
-  const avg = (key: keyof AudioFeatures) =>
-    features.length
-      ? features.reduce((s, f) => s + (Number(f[key]) || 0), 0) / features.length
-      : 0;
-
-  const artistCounts = new Map<string, number>();
-  for (const t of tracks) {
-    for (const a of t.artists ?? []) {
-      artistCounts.set(a.name, (artistCounts.get(a.name) ?? 0) + 1);
-    }
-  }
-  const topArtists = [...artistCounts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(([name, count]) => ({ name, count }));
-
-  const popularities = tracks.map((t) => t.popularity ?? 0);
-  const avgPop =
-    popularities.reduce((s, p) => s + p, 0) / Math.max(1, popularities.length);
-  const explicitRatio =
-    tracks.filter((t) => t.explicit).length / Math.max(1, tracks.length);
-
-  return {
-    track_count: tracks.length,
-    features_count: features.length,
-    avg_energy: Number(avg("energy").toFixed(3)),
-    avg_valence: Number(avg("valence").toFixed(3)),
-    avg_tempo: Number(avg("tempo").toFixed(1)),
-    avg_danceability: Number(avg("danceability").toFixed(3)),
-    avg_acousticness: Number(avg("acousticness").toFixed(3)),
-    avg_popularity: Number(avgPop.toFixed(1)),
-    explicit_ratio: Number(explicitRatio.toFixed(2)),
-    top_artists: topArtists,
-  };
-}
-
-function buildRoast(stats: ReturnType<typeof computeTasteStats>): string {
-  const lines: string[] = [];
+function buildRoast(stats: ReturnType<typeof computeTasteStats>): {
+  grade: string;
+  lines: string[];
+  roast: string;
+} {
   const grade = roastGrade(stats);
-  lines.push(`AUX ROAST · grade ${grade}`);
+  const lines: string[] = [];
   lines.push("I listened. Against medical advice.");
 
   if (stats.avg_popularity > 75) {
     lines.push(
-      `Avg popularity ${stats.avg_popularity}. Your Discover Weekly has more personality than you — the algorithm is ghostwriting your identity.`
+      `Pop ${stats.avg_popularity} — algorithm ghostwrote your identity.`
     );
   } else if (stats.avg_popularity < 35) {
-    lines.push(
-      `Avg popularity ${stats.avg_popularity}. Either you're curating the future or you're collecting songs like conspiracy PDFs.`
-    );
+    lines.push(`Pop ${stats.avg_popularity} — conspiracy-PDF music taste.`);
   } else {
-    lines.push(
-      `Popularity ${stats.avg_popularity}: the musical equivalent of a gray hoodie. Technically clothing. Spiritually nothing.`
-    );
+    lines.push(`Pop ${stats.avg_popularity} — gray hoodie energy.`);
   }
 
   if (stats.avg_valence < 0.35) {
-    lines.push(
-      `Valence ${stats.avg_valence}. This isn't a playlist — it's a weather advisory.`
-    );
+    lines.push(`Valence ${stats.avg_valence} — weather advisory playlist.`);
   } else if (stats.avg_valence > 0.7) {
-    lines.push(
-      `Valence ${stats.avg_valence}. Relentlessly OK. Did a corporate retreat write this?`
-    );
+    lines.push(`Valence ${stats.avg_valence} — corporate retreat core.`);
   } else {
-    lines.push(
-      `Valence ${stats.avg_valence}: emotionally committed to the middle seat.`
-    );
+    lines.push(`Valence ${stats.avg_valence} — middle seat forever.`);
   }
 
   if (stats.avg_energy < 0.35) {
-    lines.push(
-      `Energy ${stats.avg_energy}. I've heard hold music with a stronger character arc.`
-    );
+    lines.push(`Energy ${stats.avg_energy} — hold music with a character arc.`);
   } else if (stats.avg_energy > 0.75) {
-    lines.push(
-      `Energy ${stats.avg_energy}. Your resting state is a pre-drop. Touch grass. Or at least a ballad.`
-    );
+    lines.push(`Energy ${stats.avg_energy} — resting heart rate is a drop.`);
   }
 
   if (stats.avg_tempo < 90) {
-    lines.push(`${stats.avg_tempo} BPM — a guided meditation that forgot the guide.`);
+    lines.push(`${stats.avg_tempo} BPM — nap with branding.`);
   } else if (stats.avg_tempo > 140) {
-    lines.push(
-      `${stats.avg_tempo} BPM. Your playlist is late for something that doesn't exist.`
-    );
-  } else {
-    lines.push(`${stats.avg_tempo} BPM: the speed of someone who jogs for the selfie.`);
-  }
-
-  if (stats.avg_danceability > 0.7) {
-    lines.push(
-      `Danceability ${stats.avg_danceability}. Main-character wedding reception energy. The DJ fears you.`
-    );
-  } else if (stats.avg_danceability < 0.35) {
-    lines.push(
-      `Danceability ${stats.avg_danceability}. Bodies were not consulted in the making of this playlist.`
-    );
-  }
-
-  if (stats.explicit_ratio > 0.5) {
-    lines.push(
-      `${Math.round(stats.explicit_ratio * 100)}% explicit. Bold choice for the shared Uber.`
-    );
+    lines.push(`${stats.avg_tempo} BPM — late for a fictional flight.`);
   }
 
   if (stats.top_artists[0]) {
     const top = stats.top_artists[0];
-    const others = stats.top_artists
-      .slice(1, 3)
-      .map((a) => a.name)
-      .join(", ");
-    lines.push(
-      `Most played: ${top.name} (×${top.count}).${
-        others ? ` Honorable mentions in your cult: ${others}.` : ""
-      } We get it. They're your whole personality now.`
-    );
+    lines.push(`${top.name} ×${top.count} — they're your personality now.`);
   }
 
-  if (stats.avg_acousticness > 0.6) {
-    lines.push(
-      `Acousticness ${stats.avg_acousticness}. Tote bag. Oat milk. Unsolicited takes on "production."`
-    );
-  } else if (stats.avg_acousticness < 0.15 && stats.avg_energy > 0.6) {
-    lines.push(
-      `Acousticness ${stats.avg_acousticness}. If it isn't compressed to a pancake, you don't trust it.`
-    );
-  }
-
-  lines.push(
-    "Verdict: keep streaming. Someone has to make the rest of us look intentional."
-  );
-  lines.push("— AUX");
-  return lines.join("\n");
+  lines.push("Keep streaming. Someone has to be the contrast.");
+  return { grade, lines, roast: [`AUX ROAST · ${grade}`, ...lines].join("\n") };
 }
 
 function roastGrade(stats: ReturnType<typeof computeTasteStats>): string {
-  // Fake "taste risk" score for screenshot bait — not scientific, deeply judgmental.
   const weird =
     (1 - stats.avg_popularity / 100) * 40 +
     Math.abs(stats.avg_valence - 0.5) * 30 +
