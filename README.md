@@ -72,7 +72,7 @@ npm run login          # browser PKCE → ~/.aux-mcp
 **Spotify Dashboard** → Redirect URI (exact):
 
 ```
-http://localhost:7654/callback
+http://127.0.0.1:7654/callback
 ```
 
 ### Cursor

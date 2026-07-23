@@ -16,7 +16,6 @@ import {
   computeTasteStats,
   vibeDistance,
 } from "../mood-engine.js";
-import { parseVibeText, listVibePresets } from "../vibe-parse.js";
 import {
   vibeCard,
   dnaCard,
@@ -40,40 +39,79 @@ export function registerViralTools(server: McpServer) {
     {
       title: "Vibe",
       description:
-        "HOOK (flagship): Natural-language DJ. Pass a phrase like 'rainy 2am heartbreak' or 'gym but make it cinematic' — AUX parses energy/valence/tempo and plays a matching queue from your taste + memory. Prefer this over set_mood when the user speaks in vibes.",
+        "HOOK (flagship): Open-world DJ. YOU (the LLM) interpret the user's vibe — do NOT rely on hardcoded presets. Pass search_queries you'd actually type into Spotify (scenes, genres, eras, reference artists), plus energy/valence/tempo estimates. AUX searches the catalog, related artists, and playlists, then ranks by your targets + taste memory.",
       inputSchema: {
         text: z
           .string()
           .min(1)
-          .describe("Free-text vibe, e.g. 'late night drive in the rain'"),
+          .describe("User's vibe in their words"),
+        search_queries: z
+          .array(z.string())
+          .min(1)
+          .max(8)
+          .describe(
+            "YOUR search queries for Spotify catalog discovery — invent them. e.g. ['2am neo-soul', 'night drive alt r&b', 'sade radio', 'rainy window indie']"
+          ),
+        energy: z
+          .number()
+          .min(0)
+          .max(1)
+          .describe("YOUR estimate 0=calm 1=intense"),
+        valence: z
+          .number()
+          .min(0)
+          .max(1)
+          .describe("YOUR estimate 0=dark/sad 1=bright/happy"),
+        tempo: z
+          .number()
+          .min(40)
+          .max(220)
+          .describe("YOUR estimate target BPM"),
         limit: z.number().int().min(1).max(30).optional(),
         play: z.boolean().optional(),
         device_id: z.string().optional(),
+        explore: z
+          .boolean()
+          .optional()
+          .describe("Search Spotify catalog (default true). false = mostly user library"),
       },
     },
-    async ({ text, limit, play, device_id }) => {
+    async ({
+      text,
+      search_queries,
+      energy,
+      valence,
+      tempo,
+      limit,
+      play,
+      device_id,
+      explore,
+    }) => {
       try {
-        const parsed = parseVibeText(text);
         const result = await runMoodQueue({
-          energy: parsed.energy,
-          valence: parsed.valence,
-          tempo: parsed.tempo,
+          energy,
+          valence,
+          tempo,
           limit,
           play,
           device_id,
-          label: parsed.label,
+          label: text.slice(0, 64),
+          text,
+          search_queries,
+          explore,
         });
         const card = vibeCard({
-          label: parsed.label,
-          blurb: parsed.blurb,
-          energy: parsed.energy,
-          valence: parsed.valence,
-          tempo: parsed.tempo,
+          label: text.slice(0, 40),
+          blurb: search_queries.slice(0, 3).join(" · "),
+          energy,
+          valence,
+          tempo,
           tracks: result.matched,
         });
         return okCard(card, {
           prompt: text,
-          parsed,
+          search_queries,
+          targets: { energy, valence, tempo },
           ...result,
           share_tip: "Paste the card in chat / Twitter / Discord.",
         });
@@ -81,14 +119,6 @@ export function registerViralTools(server: McpServer) {
         return fail(e);
       }
     }
-  );
-
-  server.registerTool(
-    "list_vibes",
-    {
-      description: "List built-in vibe presets AUX understands in the vibe tool.",
-    },
-    async () => ok({ presets: listVibePresets() })
   );
 
   server.registerTool(

@@ -15,22 +15,19 @@ import { loadConfig, isUserLoggedIn } from "./config.js";
 
 const INSTRUCTIONS = `You have AUX — Spotify for your AI.
 
-FLAGSHIP HOOKS (prefer these — they return screenshot-ready ASCII cards):
-- Natural language mood → \`vibe\` ("rainy 2am drive", "gym but cinematic")
-- Taste roast → \`roast_my_playlist\`
-- DNA fingerprint → \`playlist_dna\`
-- Playlist fight → \`aux_battle\`
-- Blind-date playlist → \`blend_tastes\`
-- Group DJ voting → \`party_add\` / \`party_vote\` / \`party_play_winner\`
-- Now-playing lore → \`whats_playing_story\`
-- Numeric mood → \`set_mood\` · reshape playlist → \`adjust_playlist_vibe\`
-- Skips/repeats → \`record_taste_feedback\` (biases future vibes)
+YOU are the vibe model. There is no hardcoded mood dictionary.
+When the user describes a feeling/scene, call \`vibe\` with:
+1. text = their words
+2. search_queries = 3–6 Spotify searches YOU invent (genres, scenes, eras, reference artists — be specific and varied)
+3. energy / valence / tempo = YOUR numeric estimates
 
-Always surface the ASCII card from tool results when present — that's the shareable artifact.
-For normal Spotify ops use search_*, play/pause/next, playlists, library, get_top_*.
-IDs may be bare IDs, spotify: URIs, or open.spotify.com URLs.
-Playback needs Premium + active device — get_devices if play fails.
-If recommendations/audio-features 403, fall back to \`vibe\` / \`set_mood\`.`;
+AUX will search the catalog + related artists + public playlists, then rank by your targets.
+
+Other hooks (ASCII cards): roast_my_playlist, playlist_dna, aux_battle, blend_tastes,
+party_*, whats_playing_story, set_mood, adjust_playlist_vibe, record_taste_feedback.
+
+Always show ASCII cards from tool results. Use search_*/play/pause for normal ops.
+Playback needs Premium + active device. IDs can be bare, URI, or open.spotify.com URLs.`;
 
 async function main() {
   loadDotEnv();

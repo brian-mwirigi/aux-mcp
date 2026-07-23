@@ -12,7 +12,18 @@ import {
   summarizePlaylist,
 } from "../format.js";
 
-const limitSchema = z.number().int().min(1).max(50).optional().describe("Max results (1-50)");
+// Spotify search currently rejects limit > 10 for many apps.
+const limitSchema = z
+  .number()
+  .int()
+  .min(1)
+  .max(10)
+  .optional()
+  .describe("Max results (1-10)");
+
+function searchLimit(limit?: number) {
+  return Math.min(10, Math.max(1, limit ?? 10));
+}
 
 export function registerSearchBrowseTools(server: McpServer) {
   server.registerTool(
@@ -26,7 +37,7 @@ export function registerSearchBrowseTools(server: McpServer) {
         const data = await spotify.get<any>("/search", {
           q: query,
           type: "track",
-          limit: limit ?? 10,
+          limit: searchLimit(limit),
         });
         return ok({
           tracks: (data.tracks?.items ?? []).map(summarizeTrack),
@@ -49,7 +60,7 @@ export function registerSearchBrowseTools(server: McpServer) {
         const data = await spotify.get<any>("/search", {
           q: query,
           type: "artist",
-          limit: limit ?? 10,
+          limit: searchLimit(limit),
         });
         return ok({
           artists: (data.artists?.items ?? []).map(summarizeArtist),
@@ -72,7 +83,7 @@ export function registerSearchBrowseTools(server: McpServer) {
         const data = await spotify.get<any>("/search", {
           q: query,
           type: "album",
-          limit: limit ?? 10,
+          limit: searchLimit(limit),
         });
         return ok({
           albums: (data.albums?.items ?? []).map(summarizeAlbum),
@@ -95,7 +106,7 @@ export function registerSearchBrowseTools(server: McpServer) {
         const data = await spotify.get<any>("/search", {
           q: query,
           type: "playlist",
-          limit: limit ?? 10,
+          limit: searchLimit(limit),
         });
         return ok({
           playlists: (data.playlists?.items ?? [])

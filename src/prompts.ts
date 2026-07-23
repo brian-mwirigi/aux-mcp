@@ -21,8 +21,9 @@ export function registerPrompts(server: McpServer): void {
           content: {
             type: "text",
             text:
-              `Use the AUX \`vibe\` tool with text="${vibe}". ` +
-              `Play it. Show me the share card. If play fails, call get_devices and transfer_playback, then retry.`,
+              `DJ this vibe with AUX \`vibe\`: "${vibe}". ` +
+              `You invent search_queries (3–6 specific Spotify searches) and estimate energy/valence/tempo — no presets. ` +
+              `Play it, show the card. If play fails, get_devices → transfer_playback → retry.`,
           },
         },
       ],

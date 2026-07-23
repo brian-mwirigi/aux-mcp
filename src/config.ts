@@ -41,7 +41,7 @@ export const SCOPES = [
 ];
 
 const DEFAULT_PORT = 7654;
-const DEFAULT_REDIRECT = `http://localhost:7654/callback`;
+const DEFAULT_REDIRECT = `http://127.0.0.1:7654/callback`;
 
 let dotenvLoaded = false;
 
