@@ -53,7 +53,7 @@ npm run login
 | `npm run web` | Roast site on `:7656` |
 | `npm run autodj` | Auto-DJ refill loop |
 | `npm run party-host` | Party relay on `:7655` |
-| `npm run openclaw` | Copy `skills/SKILL.md` → `~/.openclaw/skills/aux` |
+| `npm run openclaw` | Copy `skills/aux-mcp/SKILL.md` → `~/.openclaw/skills/aux-mcp` |
 
 Optional live check (needs `.env` + login):
 
@@ -93,7 +93,7 @@ Describe **why** in the body. Link an issue when there is one (`Fixes #N`).
 | ASCII cards | `src/cards.ts` |
 | Auth / tokens | `src/login.ts`, `src/config.ts` |
 | Roast web UI | `web/` |
-| OpenClaw skill | `skills/SKILL.md` |
+| OpenClaw skill | `skills/aux-mcp/SKILL.md` |
 | OpenClaw docs | `docs/openclaw.md` |
 | MCP examples | `examples/` |
 

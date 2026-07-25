@@ -229,14 +229,14 @@ Repo: https://github.com/brian-mwirigi/aux-mcp
 }
 
 /**
- * Install OpenClaw skill → ~/.openclaw/skills/aux/SKILL.md
- * Source of truth: skills/SKILL.md (ClawHub / GitHub import path).
+ * Install OpenClaw skill → ~/.openclaw/skills/aux-mcp/SKILL.md
+ * Source of truth: skills/aux-mcp/SKILL.md (ClawHub layout, same as CostHQ).
  */
 function installOpenClawSkill(): void {
   const skillFile = resolveSkillMarkdown();
   if (!skillFile) {
     console.error(
-      "spotify-aux openclaw: could not find skills/SKILL.md (reinstall the package or run from a full clone)."
+      "spotify-aux openclaw: could not find skills/aux-mcp/SKILL.md (reinstall the package or run from a full clone)."
     );
     process.exit(1);
   }
@@ -244,7 +244,7 @@ function installOpenClawSkill(): void {
   const destRoot =
     process.env.OPENCLAW_SKILLS_DIR?.trim() ||
     join(homedir(), ".openclaw", "skills");
-  const destDir = join(destRoot, "aux");
+  const destDir = join(destRoot, "aux-mcp");
   const destFile = join(destDir, "SKILL.md");
 
   mkdirSync(destDir, { recursive: true });
@@ -255,6 +255,8 @@ AUX · OpenClaw
 ──────────────
   Skill installed → ${destFile}
   Source            ${skillFile}
+
+  ClawHub: openclaw skills install @brian-mwirigi/aux-mcp
 
 Next — register the MCP server (once):
 
@@ -274,10 +276,10 @@ Docs: https://github.com/brian-mwirigi/aux-mcp/blob/main/docs/openclaw.md
 
 function resolveSkillMarkdown(): string | null {
   const candidates = [
+    join(__dirname, "..", "skills", "aux-mcp", "SKILL.md"),
+    join(__dirname, "skills", "aux-mcp", "SKILL.md"),
     join(__dirname, "..", "skills", "SKILL.md"),
-    join(__dirname, "skills", "SKILL.md"),
     join(__dirname, "..", "docs", "openclaw-skill.md"),
-    join(__dirname, "docs", "openclaw-skill.md"),
   ];
   for (const p of candidates) {
     if (existsSync(p)) return p;

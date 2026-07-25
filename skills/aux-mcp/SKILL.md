@@ -1,5 +1,5 @@
 ---
-name: aux
+name: aux-mcp
 license: MIT
 description: "AUX — Spotify for your AI. Vibe DJ, roast cards, party rooms, and auto-DJ via MCP."
 metadata: {"openclaw":{"homepage":"https://brianmunene.me/aux-mcp","emoji":"🎧","requires":{"bins":["spotify-aux"],"env":["SPOTIFY_CLIENT_ID","SPOTIFY_CLIENT_SECRET"]},"primaryEnv":"SPOTIFY_CLIENT_ID","install":[{"id":"npm","kind":"node","package":"spotify-aux","bins":["spotify-aux","aux-mcp"],"label":"Install spotify-aux (npm)"}]}}
@@ -37,7 +37,7 @@ Or install this skill into managed skills:
 
 ```bash
 npx spotify-aux openclaw
-# copies skills/SKILL.md → ~/.openclaw/skills/aux/SKILL.md
+# copies skills/aux-mcp/SKILL.md → ~/.openclaw/skills/aux-mcp/SKILL.md
 ```
 
 Redirect URI (exact): `http://127.0.0.1:7654/callback`

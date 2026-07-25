@@ -158,7 +158,7 @@ openclaw mcp add aux \
 openclaw mcp doctor aux --probe
 ```
 
-Skill file: [`skills/SKILL.md`](./skills/SKILL.md) · walkthrough: [docs/openclaw.md](./docs/openclaw.md) · example: [examples/mcp.openclaw.json](./examples/mcp.openclaw.json)
+ClawHub: [`@brian-mwirigi/aux-mcp`](https://clawhub.ai/brian-mwirigi/aux-mcp) · skill: [`skills/aux-mcp/SKILL.md`](./skills/aux-mcp/SKILL.md) · [docs/openclaw.md](./docs/openclaw.md)
 
 ## Contributing
 
