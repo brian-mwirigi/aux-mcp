@@ -141,6 +141,25 @@ Tokens → `~/.aux-mcp/`. Premium + open Spotify app for playback.
 
 ---
 
+## OpenClaw
+
+Register AUX as an OpenClaw-managed MCP server + install the skill:
+
+```bash
+npx -y spotify-aux openclaw
+
+openclaw mcp add aux \
+  --command npx \
+  --arg -y \
+  --arg spotify-aux \
+  --env SPOTIFY_CLIENT_ID="$SPOTIFY_CLIENT_ID" \
+  --env SPOTIFY_CLIENT_SECRET="$SPOTIFY_CLIENT_SECRET"
+
+openclaw mcp doctor aux --probe
+```
+
+Full walkthrough: [docs/openclaw.md](./docs/openclaw.md) · example: [examples/mcp.openclaw.json](./examples/mcp.openclaw.json)
+
 ## Contributing
 
 PRs welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) and open [`good first issue`](https://github.com/brian-mwirigi/aux-mcp/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)s.

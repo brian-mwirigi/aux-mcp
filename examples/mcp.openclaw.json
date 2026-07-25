@@ -1,0 +1,14 @@
+{
+  "mcp": {
+    "servers": {
+      "aux": {
+        "command": "npx",
+        "args": ["-y", "spotify-aux"],
+        "env": {
+          "SPOTIFY_CLIENT_ID": "your_client_id",
+          "SPOTIFY_CLIENT_SECRET": "your_client_secret"
+        }
+      }
+    }
+  }
+}

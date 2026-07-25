@@ -8,10 +8,12 @@
  *   npx spotify-aux party-host  Friend-link relay
  *   npx spotify-aux web         Roast site
  *   npx spotify-aux demo        Terminal demo
+ *   npx spotify-aux openclaw    Install OpenClaw skill
  */
 import { createServer } from "node:http";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
+import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -68,6 +70,10 @@ async function main() {
     await runDemo();
     return;
   }
+  if (cmd === "openclaw") {
+    installOpenClawSkill();
+    return;
+  }
   if (cmd && cmd !== "serve") {
     console.error(`Unknown command: ${cmd}\n`);
     printHelp();
@@ -82,7 +88,7 @@ async function main() {
   }
 
   const server = new McpServer(
-    { name: "spotify-aux", version: "0.4.0" },
+    { name: "spotify-aux", version: "0.4.1" },
     { instructions: INSTRUCTIONS }
   );
   registerAllTools(server);
@@ -214,10 +220,66 @@ function printHelp(): void {
   npx spotify-aux party-host   Friend-link relay (:7655)
   npx spotify-aux web          Roast site (:7656)
   npx spotify-aux demo         Terminal trailer
+  npx spotify-aux openclaw     Install OpenClaw skill
   npx spotify-aux help
 
 Repo: https://github.com/brian-mwirigi/aux-mcp
+  Docs: https://github.com/brian-mwirigi/aux-mcp/blob/main/docs/openclaw.md
 `);
+}
+
+/**
+ * Install OpenClaw skill → ~/.openclaw/skills/aux/SKILL.md
+ * Source of truth: docs/openclaw-skill.md (shipped in the npm package).
+ */
+function installOpenClawSkill(): void {
+  const skillFile = resolveSkillMarkdown();
+  if (!skillFile) {
+    console.error(
+      "spotify-aux openclaw: could not find docs/openclaw-skill.md (reinstall the package or run from a full clone)."
+    );
+    process.exit(1);
+  }
+
+  const destRoot =
+    process.env.OPENCLAW_SKILLS_DIR?.trim() ||
+    join(homedir(), ".openclaw", "skills");
+  const destDir = join(destRoot, "aux");
+  const destFile = join(destDir, "SKILL.md");
+
+  mkdirSync(destDir, { recursive: true });
+  writeFileSync(destFile, readFileSync(skillFile, "utf8"), "utf8");
+
+  console.log(`
+AUX · OpenClaw
+──────────────
+  Skill installed → ${destFile}
+
+Next — register the MCP server (once):
+
+  openclaw mcp add aux \\
+    --command npx \\
+    --arg -y \\
+    --arg spotify-aux \\
+    --env SPOTIFY_CLIENT_ID="$SPOTIFY_CLIENT_ID" \\
+    --env SPOTIFY_CLIENT_SECRET="$SPOTIFY_CLIENT_SECRET"
+
+  openclaw mcp doctor aux --probe
+  npx spotify-aux login
+
+Docs: https://github.com/brian-mwirigi/aux-mcp/blob/main/docs/openclaw.md
+`);
+}
+
+function resolveSkillMarkdown(): string | null {
+  const candidates = [
+    join(__dirname, "..", "docs", "openclaw-skill.md"),
+    join(__dirname, "docs", "openclaw-skill.md"),
+  ];
+  for (const p of candidates) {
+    if (existsSync(p)) return p;
+  }
+  return null;
 }
 
 function printStatus(): void {

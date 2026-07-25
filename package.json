@@ -1,6 +1,6 @@
 ﻿{
   "name": "spotify-aux",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "AUX — Spotify for your AI. Vibe DJ, roast cards, battles, party rooms, auto-DJ. Full Spotify MCP.",
   "license": "MIT",
   "type": "module",
@@ -15,6 +15,7 @@
     "docs",
     "README.md",
     "LICENSE",
+    "CONTRIBUTING.md",
     ".env.example",
     "examples"
   ],
@@ -27,6 +28,7 @@
     "party-host": "tsx src/server.ts party-host",
     "web": "tsx src/server.ts web",
     "demo": "tsx src/server.ts demo",
+    "openclaw": "tsx src/server.ts openclaw",
     "smoke": "npm run build && node scripts/smoke.mjs",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
@@ -51,6 +53,7 @@
     "claude",
     "cursor",
     "cline",
+    "openclaw",
     "aux",
     "dj",
     "spotify-aux"
