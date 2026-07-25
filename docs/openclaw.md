@@ -2,6 +2,14 @@
 
 Wire **AUX** (`spotify-aux`) into [OpenClaw](https://github.com/openclaw/openclaw) so gateway agents can DJ Spotify through MCP — vibe queues, roast cards, party rooms, auto-DJ.
 
+## Skill path (source of truth)
+
+```text
+skills/SKILL.md
+```
+
+ClawHub GitHub import discovers this file. Do not nest it under `skills/aux/` on Windows Git — keep it at `skills/SKILL.md`.
+
 ## 1-minute setup
 
 ```bash
@@ -20,7 +28,7 @@ openclaw mcp add aux \
 
 openclaw mcp doctor aux --probe
 
-# Install the AUX skill (teaches peak hooks → ~/.openclaw/skills/aux)
+# Install the AUX skill → ~/.openclaw/skills/aux/SKILL.md
 npx spotify-aux openclaw
 ```
 
@@ -35,7 +43,7 @@ http://127.0.0.1:7654/callback
 | Piece | Role |
 |-------|------|
 | MCP server `spotify-aux` | Tools: `vibe`, `roast_my_playlist`, `party_room_*`, playback, … |
-| Skill `aux` | When/how to call those tools (no hardcoded vibe dictionary) |
+| Skill `skills/SKILL.md` | When/how to call those tools (no hardcoded vibe dictionary) |
 | OpenClaw `mcp.servers.aux` | Gateway runtimes can launch AUX on demand |
 
 ## Skill install variants
@@ -46,25 +54,24 @@ http://127.0.0.1:7654/callback
 npx spotify-aux openclaw
 ```
 
-Writes `docs/openclaw-skill.md` → `~/.openclaw/skills/aux/SKILL.md`.
+Copies `skills/SKILL.md` → `~/.openclaw/skills/aux/SKILL.md`.
 
-**B. Manual**
+**B. ClawHub GitHub import**
+
+1. Open ClawHub → Import from GitHub  
+2. Select **aux-mcp** (must show `skills/SKILL.md`)  
+3. Review → Publish  
+
+**C. Manual**
 
 ```bash
 mkdir -p ~/.openclaw/skills/aux
-cp "$(npm root -g)/spotify-aux/docs/openclaw-skill.md" ~/.openclaw/skills/aux/SKILL.md
-```
-
-**C. Workspace skill** (single agent only)
-
-```bash
-mkdir -p /path/to/openclaw-workspace/skills/aux
-cp docs/openclaw-skill.md /path/to/openclaw-workspace/skills/aux/SKILL.md
+cp skills/SKILL.md ~/.openclaw/skills/aux/SKILL.md
 ```
 
 ## Config shape
 
-Equivalent to `openclaw mcp set` / Control UI. See also [`examples/mcp.openclaw.json`](../examples/mcp.openclaw.json).
+See [`examples/mcp.openclaw.json`](../examples/mcp.openclaw.json).
 
 ```json
 {
@@ -108,5 +115,5 @@ In an OpenClaw session, try: *“rainy 2am drive”* or *“roast my top tracks�
 
 - Playback needs Spotify Premium + an active device.
 - Tokens live in `~/.aux-mcp/` after `npx spotify-aux login`.
-- Skill source: [`docs/openclaw-skill.md`](./openclaw-skill.md)
+- Skill source: [`skills/SKILL.md`](../skills/SKILL.md)
 - OpenClaw MCP registry docs: https://docs.openclaw.ai/cli/mcp

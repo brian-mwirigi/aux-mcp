@@ -158,7 +158,7 @@ openclaw mcp add aux \
 openclaw mcp doctor aux --probe
 ```
 
-Full walkthrough: [docs/openclaw.md](./docs/openclaw.md) · example: [examples/mcp.openclaw.json](./examples/mcp.openclaw.json)
+Skill file: [`skills/SKILL.md`](./skills/SKILL.md) · walkthrough: [docs/openclaw.md](./docs/openclaw.md) · example: [examples/mcp.openclaw.json](./examples/mcp.openclaw.json)
 
 ## Contributing
 

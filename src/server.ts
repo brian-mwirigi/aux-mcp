@@ -230,13 +230,13 @@ Repo: https://github.com/brian-mwirigi/aux-mcp
 
 /**
  * Install OpenClaw skill → ~/.openclaw/skills/aux/SKILL.md
- * Source of truth: docs/openclaw-skill.md (shipped in the npm package).
+ * Source of truth: skills/SKILL.md (ClawHub / GitHub import path).
  */
 function installOpenClawSkill(): void {
   const skillFile = resolveSkillMarkdown();
   if (!skillFile) {
     console.error(
-      "spotify-aux openclaw: could not find docs/openclaw-skill.md (reinstall the package or run from a full clone)."
+      "spotify-aux openclaw: could not find skills/SKILL.md (reinstall the package or run from a full clone)."
     );
     process.exit(1);
   }
@@ -254,6 +254,7 @@ function installOpenClawSkill(): void {
 AUX · OpenClaw
 ──────────────
   Skill installed → ${destFile}
+  Source            ${skillFile}
 
 Next — register the MCP server (once):
 
@@ -273,6 +274,8 @@ Docs: https://github.com/brian-mwirigi/aux-mcp/blob/main/docs/openclaw.md
 
 function resolveSkillMarkdown(): string | null {
   const candidates = [
+    join(__dirname, "..", "skills", "SKILL.md"),
+    join(__dirname, "skills", "SKILL.md"),
     join(__dirname, "..", "docs", "openclaw-skill.md"),
     join(__dirname, "docs", "openclaw-skill.md"),
   ];
