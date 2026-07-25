@@ -1,7 +1,7 @@
 ---
 name: aux
 license: MIT
-description: Spotify for your AI. Use AUX MCP tools to vibe-DJ, roast playlists, run party rooms, and auto-DJ — not a remote, a booth that talks back.
+description: "AUX — Spotify for your AI. Vibe DJ, roast cards, party rooms, and auto-DJ via MCP."
 metadata: {"openclaw":{"homepage":"https://brianmunene.me/aux-mcp","emoji":"🎧","requires":{"bins":["spotify-aux"],"env":["SPOTIFY_CLIENT_ID","SPOTIFY_CLIENT_SECRET"]},"primaryEnv":"SPOTIFY_CLIENT_ID","install":[{"id":"npm","kind":"node","package":"spotify-aux","bins":["spotify-aux","aux-mcp"],"label":"Install spotify-aux (npm)"}]}}
 ---
 
