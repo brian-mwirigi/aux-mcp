@@ -141,6 +141,12 @@ Tokens → `~/.aux-mcp/`. Premium + open Spotify app for playback.
 
 ---
 
+## Contributing
+
+PRs welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) and open [`good first issue`](https://github.com/brian-mwirigi/aux-mcp/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)s.
+
+Site: [brianmunene.me/aux-mcp](https://brianmunene.me/aux-mcp)
+
 ## Star it. Pass the aux.
 
 [github.com/brian-mwirigi/aux-mcp](https://github.com/brian-mwirigi/aux-mcp)
