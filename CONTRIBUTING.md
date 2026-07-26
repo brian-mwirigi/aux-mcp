@@ -87,7 +87,7 @@ Describe **why** in the body. Link an issue when there is one (`Fixes #N`).
 | Area | Path |
 |------|------|
 | MCP server entry / CLI | `src/server.ts` |
-| Tool registration | `src/register.ts`, `src/tools/` |
+| Tool registration | `src/tools/register.ts`, `src/tools/` |
 | Vibe / discovery | `src/discover.ts`, `src/mood-engine.ts` |
 | Peak hooks | `src/tools/viral.ts`, `src/tools/peak.ts` |
 | ASCII cards | `src/cards.ts` |
@@ -96,6 +96,7 @@ Describe **why** in the body. Link an issue when there is one (`Fixes #N`).
 | OpenClaw skill | `skills/aux-mcp/SKILL.md` |
 | OpenClaw docs | `docs/openclaw.md` |
 | MCP examples | `examples/` |
+| Architecture and API map | `docs/architecture.md` |
 
 ## Ideas we want help with
 
