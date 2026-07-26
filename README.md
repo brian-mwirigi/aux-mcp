@@ -100,6 +100,9 @@ npx -y spotify-aux web
 
 ## Full tool map
 
+See [Architecture](docs/architecture.md) for the tool-module, Spotify endpoint,
+authentication, and vibe-pipeline map.
+
 <details>
 <summary><strong>Peak / viral</strong></summary>
 
